@@ -1,0 +1,22 @@
+# Dir
+.vs/
+bin/
+bin-int/
+CMakeSettings.json/
+Win32/
+x64/
+Debug/
+Release/
+MinSizeRel/
+RelWithDebInfo/
+
+# Files
+*.user
+*.sln
+_ReSharper*
+*.sdf
+*.suo
+*.dir
+*.vcxproj*
+*.opensdf
+*.ini
