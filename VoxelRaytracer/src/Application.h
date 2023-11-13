@@ -4,6 +4,8 @@
 #include "Shader.h"
 #include "Renderer/VertexArray.h"
 
+#include "ImGui/ImGuiLayer.h"
+
 struct ApplicationSpecification
 {
 	std::string Name = "App";
@@ -23,6 +25,9 @@ public:
 	static Application& Get();
 	GLFWwindow* GetWindow() const { return m_Window; }
 
+	uint32_t GetWidth() const { return m_Width; }
+	uint32_t GetHeight() const { return m_Height; }
+		
 private:
 	void Init();
 	void Shutdown();
@@ -30,6 +35,9 @@ private:
 private:
 	ApplicationSpecification m_Specification;
 	GLFWwindow* m_Window;
+
+	ImGuiLayer* m_ImGuiLayer;
+
 	bool m_Running = false;
 
 	std::shared_ptr<VertexArray> m_VertexArray;
@@ -43,7 +51,6 @@ private:
 	uint32_t m_Height;
 
 	float m_LastTime = 0;
-
 
 	//tmp
 	glm::mat4 m_ModelMat = glm::mat4(1.0f);

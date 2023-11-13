@@ -43,6 +43,8 @@ void Application::Init()
 
     glEnable(GL_DEPTH_TEST);
 
+    m_ImGuiLayer->Init();
+
     float pyramidVerts[] = {
         -0.5f,  0.0f,  0.5f, 0.0f, 1.0f, 0.0f,
         -0.5f,  0.0f, -0.5f, 1.0f, 1.0f, 0.0f,
@@ -51,7 +53,7 @@ void Application::Init()
          0.0f,  0.8f,  0.0f, 0.0f, 0.0f, 1.0f,
     };
 
-    uint32_t indecies[] = {
+    uint32_t pyramidIndecies[] = {
         0, 1, 2,
         0, 2, 3,
         0, 1, 4,
@@ -60,14 +62,40 @@ void Application::Init()
         3, 0, 4,
     };
 
+    float cubeVerts[] = {
+        -0.5f, -0.5f, -0.5f, 1.0f, 1.0f, 1.0f,
+         0.5f, -0.5f, -0.5f, 1.0f, 1.0f, 0.0f,
+        -0.5f,  0.5f, -0.5f, 1.0f, 0.0f, 0.0f,
+         0.5f,  0.5f, -0.5f, 0.0f, 0.0f, 0.0f,
+        -0.5f, -0.5f,  0.5f, 0.0f, 1.0f, 1.0f,
+         0.5f, -0.5f,  0.5f, 0.0f, 0.0f, 1.0f,
+        -0.5f,  0.5f,  0.5f, 0.0f, 1.0f, 0.0f,
+         0.5f,  0.5f,  0.5f, 1.0f, 0.0f, 1.0f,
+    };
+
+    uint32_t cubeIndecies[] = {
+        0, 1, 2,
+        1, 2, 3,
+        2, 6, 4,
+        4, 0, 2,
+        2, 3, 6,
+        7, 6, 3,
+        6, 7, 4,
+        7, 4, 5,
+        7, 3, 1,
+        1, 5, 7,
+        0, 1, 4,
+        4, 1, 5,
+    };
+
     m_VertexArray = VertexArray::Create();
 
-    m_VertexBuffer = VertexBuffer::Create(pyramidVerts, sizeof(pyramidVerts));
+    m_VertexBuffer = VertexBuffer::Create(cubeVerts, sizeof(cubeVerts));
     m_VertexBuffer->SetLayout({
         { ShaderDataType::Float3, "a_Position" },
         { ShaderDataType::Float3, "a_Colour" },
     });
-    m_IndexBuffer = IndexBuffer::Create(indecies, 18);
+    m_IndexBuffer = IndexBuffer::Create(cubeIndecies, sizeof(cubeIndecies) / sizeof(uint32_t));
 
     m_VertexArray->AddVertexBuffer(m_VertexBuffer);
     m_VertexArray->SetIndexBuffer(m_IndexBuffer);
@@ -87,8 +115,7 @@ void Application::Run()
     {
         float currentTime = (float)glfwGetTime();
         float deltaTime = currentTime - m_LastTime;
-        m_LastTime = currentTime;
-
+        m_LastTime = currentTime;   
 
         glfwPollEvents();
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -101,7 +128,15 @@ void Application::Run()
         m_Shader->UploadUniformMat4("u_Projection", m_Camera.GetProjectionMatrix());
         m_Shader->UploadUniformMat4("u_View", m_Camera.GetViewMatrix());
 
-        glDrawElements(GL_TRIANGLES, 18, GL_UNSIGNED_INT, nullptr);
+        glDrawElements(GL_TRIANGLES, 36, GL_UNSIGNED_INT, nullptr);
+
+        m_ImGuiLayer->Begin();
+
+        ImGui::Begin("Test");
+        ImGui::Text("Hello World");
+        ImGui::End();
+
+        m_ImGuiLayer->End();
 
         glfwSwapBuffers(m_Window);
     }
@@ -119,5 +154,6 @@ Application& Application::Get()
 
 void Application::Shutdown()
 {
+    m_ImGuiLayer->Shutdown();
     glfwTerminate();
 }

@@ -22,6 +22,7 @@ IncludeDir = {}
 IncludeDir["GLFW"] = "VoxelRaytracer/vendor/GLFW/include"
 IncludeDir["GLEW"] = "VoxelRaytracer/vendor/GLEW/include"
 IncludeDir["glm"] = "VoxelRaytracer/vendor/glm"
+IncludeDir["ImGui"] = "VoxelRaytracer/vendor/imgui"
 
 project "VoxelRaytracer"
     location "VoxelRaytracer"
@@ -39,9 +40,11 @@ project "VoxelRaytracer"
         "%{prj.name}/src/**.c",
         "%{prj.name}/src/**.hpp",
         "%{prj.name}/src/**.cpp",
-        "%{prj.name}/vendor/glm/glm/**.h",
-        "%{prj.name}/vendor/glm/glm/**.hpp",
-        "%{prj.name}/vendor/glm/glm/**.inl",
+        --"%{prj.name}/vendor/glm/glm/**.h",
+        --"%{prj.name}/vendor/glm/glm/**.hpp",
+        --"%{prj.name}/vendor/glm/glm/**.inl",
+        "%{prj.name}/vendor/imgui/**.h",
+        "%{prj.name}/vendor/imgui/**.cpp",
     }
     
     defines
@@ -55,6 +58,7 @@ project "VoxelRaytracer"
         "$(SolutionDir)%{IncludeDir.GLFW}",
         "$(SolutionDir)%{IncludeDir.GLEW}",
         "$(SolutionDir)%{IncludeDir.glm}",
+        "$(SolutionDir)%{IncludeDir.ImGui}",
     }
 
     links
