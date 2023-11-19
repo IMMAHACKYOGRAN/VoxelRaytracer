@@ -22,15 +22,18 @@ public:
 	void Run();
 	void Close();
 
+	void OnResize();
+
 	static Application& Get();
 	GLFWwindow* GetWindow() const { return m_Window; }
 
-	uint32_t GetWidth() const { return m_Width; }
-	uint32_t GetHeight() const { return m_Height; }
-		
+	uint32_t GetWidth() const { return m_WindowData.Width; }
+	uint32_t GetHeight() const { return m_WindowData.Height; }
+
 private:
 	void Init();
 	void Shutdown();
+
 
 private:
 	ApplicationSpecification m_Specification;
@@ -39,6 +42,7 @@ private:
 	ImGuiLayer* m_ImGuiLayer;
 
 	bool m_Running = false;
+	bool m_Minimised = false;
 
 	std::shared_ptr<VertexArray> m_VertexArray;
 	std::shared_ptr<VertexBuffer> m_VertexBuffer;
@@ -47,8 +51,16 @@ private:
 	Camera m_Camera;
 	std::shared_ptr<Shader> m_Shader;
 
-	uint32_t m_Width;
-	uint32_t m_Height;
+	struct WindowData
+	{
+		std::string Title;
+		uint32_t Width;
+		uint32_t Height;
+
+		bool Resize = false;
+	};
+
+	WindowData m_WindowData;
 
 	float m_LastTime = 0;
 

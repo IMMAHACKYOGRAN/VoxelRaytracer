@@ -1,4 +1,7 @@
 #include "Application.h"
+
+#include <iostream>
+
 #include <gtc/matrix_transform.hpp>
 
 #include <GL/glew.h>
@@ -11,8 +14,9 @@ Application::Application(const ApplicationSpecification& specification)
 {
     s_Instance = this;
 
-    m_Width = m_Specification.Width;
-    m_Height = m_Specification.Height;
+    m_WindowData.Title = m_Specification.Name;
+    m_WindowData.Width = m_Specification.Width;
+    m_WindowData.Height = m_Specification.Height;
 
 	Init();
 }
@@ -29,7 +33,7 @@ void Application::Init()
     if (!glfwInit())
         printf("GLFW not initialised.\n");
 
-    m_Window = glfwCreateWindow(m_Width, m_Height, m_Specification.Name.c_str(), NULL, NULL);
+    m_Window = glfwCreateWindow(m_WindowData.Width, m_WindowData.Height, m_WindowData.Title.c_str(), NULL, NULL);
     if (!m_Window)
     {
         glfwTerminate();
@@ -43,34 +47,27 @@ void Application::Init()
 
     glEnable(GL_DEPTH_TEST);
 
+    glfwSetWindowUserPointer(m_Window, &m_WindowData);
+
+    glfwSetWindowSizeCallback(m_Window, [](GLFWwindow* window, int width, int height)
+        {
+            WindowData& data = *(WindowData*)glfwGetWindowUserPointer(window);
+            data.Width = width;
+            data.Height = height;
+            data.Resize = true;
+        });
+
     m_ImGuiLayer->Init();
 
-    float pyramidVerts[] = {
-        -0.5f,  0.0f,  0.5f, 0.0f, 1.0f, 0.0f,
-        -0.5f,  0.0f, -0.5f, 1.0f, 1.0f, 0.0f,
-         0.5f,  0.0f, -0.5f, 1.0f, 0.0f, 0.0f,
-         0.5f,  0.0f,  0.5f, 1.0f, 0.0f, 1.0f,
-         0.0f,  0.8f,  0.0f, 0.0f, 0.0f, 1.0f,
-    };
-
-    uint32_t pyramidIndecies[] = {
-        0, 1, 2,
-        0, 2, 3,
-        0, 1, 4,
-        1, 2, 4,
-        2, 3, 4,
-        3, 0, 4,
-    };
-
     float cubeVerts[] = {
-        -0.5f, -0.5f, -0.5f, 1.0f, 1.0f, 1.0f,
-         0.5f, -0.5f, -0.5f, 1.0f, 1.0f, 0.0f,
-        -0.5f,  0.5f, -0.5f, 1.0f, 0.0f, 0.0f,
-         0.5f,  0.5f, -0.5f, 0.0f, 0.0f, 0.0f,
-        -0.5f, -0.5f,  0.5f, 0.0f, 1.0f, 1.0f,
-         0.5f, -0.5f,  0.5f, 0.0f, 0.0f, 1.0f,
-        -0.5f,  0.5f,  0.5f, 0.0f, 1.0f, 0.0f,
-         0.5f,  0.5f,  0.5f, 1.0f, 0.0f, 1.0f,
+        -0.5f, -0.5f, -0.5f, 0.0f, 0.0f, 0.0f,
+         0.5f, -0.5f, -0.5f, 1.0f, 0.0f, 0.0f,
+        -0.5f,  0.5f, -0.5f, 0.0f, 1.0f, 0.0f,
+         0.5f,  0.5f, -0.5f, 1.0f, 1.0f, 0.0f,
+        -0.5f, -0.5f,  0.5f, 0.0f, 0.0f, 1.0f,
+         0.5f, -0.5f,  0.5f, 1.0f, 0.0f, 1.0f,
+        -0.5f,  0.5f,  0.5f, 0.0f, 1.0f, 1.0f,
+         0.5f,  0.5f,  0.5f, 1.0f, 1.0f, 1.0f,
     };
 
     uint32_t cubeIndecies[] = {
@@ -103,8 +100,24 @@ void Application::Init()
     m_Shader = Shader::Create("res/3D.glsl");
     m_Shader->Bind();
 
-    m_Camera.SetPosition({ 0.0f, 0.5f, 2.0f });
-    m_Camera.OnResize(m_Specification.Width, m_Specification.Height);
+    m_Camera.SetPosition({ 0.0f, 0.0f, 2.0f });
+    m_Camera.OnResize(m_WindowData.Width, m_WindowData.Height);
+}
+
+void Application::OnResize()
+{
+    m_WindowData.Resize = false;
+
+    if (m_WindowData.Width == 0 || m_WindowData.Height == 0)
+    {
+        m_Minimised = true;
+        return;
+    }
+
+    m_Minimised = false;
+    glViewport(0, 0, m_WindowData.Width, m_WindowData.Height);
+
+    m_Camera.OnResize(m_WindowData.Width, m_WindowData.Height);
 }
 
 void Application::Run()
@@ -113,32 +126,38 @@ void Application::Run()
 
     while (!glfwWindowShouldClose(m_Window) && m_Running)
     {
+        if (m_WindowData.Resize)
+            OnResize();
+
         float currentTime = (float)glfwGetTime();
         float deltaTime = currentTime - m_LastTime;
-        m_LastTime = currentTime;   
+        m_LastTime = currentTime;
 
         glfwPollEvents();
-        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+        if (!m_Minimised)
+        {
+            glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+            glClearColor(0.4f, 0.4f, 0.4f, 0.0f);
 
-        m_Camera.OnUpdate(deltaTime);
+            m_Camera.OnUpdate(deltaTime);
 
-        m_ModelMat = glm::rotate(m_ModelMat, glm::radians(30.0f) * deltaTime, glm::vec3(0.0f, 1.0f, 0.0f));
+            m_ModelMat = glm::rotate(m_ModelMat, glm::radians(30.0f) * deltaTime, glm::vec3(0.0f, 1.0f, 0.0f));
 
-        m_Shader->UploadUniformMat4("u_Model", m_ModelMat);
-        m_Shader->UploadUniformMat4("u_Projection", m_Camera.GetProjectionMatrix());
-        m_Shader->UploadUniformMat4("u_View", m_Camera.GetViewMatrix());
+            m_Shader->UploadUniformMat4("u_Model", m_ModelMat);
+            m_Shader->UploadUniformMat4("u_Projection", m_Camera.GetProjectionMatrix());
+            m_Shader->UploadUniformMat4("u_View", m_Camera.GetViewMatrix());
 
-        glDrawElements(GL_TRIANGLES, 36, GL_UNSIGNED_INT, nullptr);
+            glDrawElements(GL_TRIANGLES, 36, GL_UNSIGNED_INT, nullptr);
 
-        m_ImGuiLayer->Begin();
+            m_ImGuiLayer->Begin();
 
-        ImGui::Begin("Test");
-        ImGui::Text("Hello World");
-        ImGui::End();
+            ImGui::Begin("Test");
+            ImGui::Text("Hello World");
+            ImGui::End();
 
-        m_ImGuiLayer->End();
-
-        glfwSwapBuffers(m_Window);
+            m_ImGuiLayer->End();
+            glfwSwapBuffers(m_Window);
+        }
     }
 }
 
