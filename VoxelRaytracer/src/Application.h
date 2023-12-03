@@ -1,7 +1,9 @@
 #pragma once
 
 #include "Camera.h"
-#include "Shader.h"
+#include "VoxelModel.h"
+
+#include "Renderer/Shader.h"
 #include "Renderer/VertexArray.h"
 
 #include "ImGui/ImGuiLayer.h"
@@ -34,7 +36,6 @@ private:
 	void Init();
 	void Shutdown();
 
-
 private:
 	ApplicationSpecification m_Specification;
 	GLFWwindow* m_Window;
@@ -50,6 +51,8 @@ private:
 
 	Camera m_Camera;
 	std::shared_ptr<Shader> m_Shader;
+
+	std::shared_ptr<VoxelModel> m_Crate;
 
 	struct WindowData
 	{

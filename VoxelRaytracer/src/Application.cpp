@@ -97,11 +97,13 @@ void Application::Init()
     m_VertexArray->AddVertexBuffer(m_VertexBuffer);
     m_VertexArray->SetIndexBuffer(m_IndexBuffer);
 
-    m_Shader = Shader::Create("res/3D.glsl");
+    m_Shader = Shader::Create("res/shaders/3D.glsl");
     m_Shader->Bind();
 
     m_Camera.SetPosition({ 0.0f, 0.0f, 2.0f });
     m_Camera.OnResize(m_WindowData.Width, m_WindowData.Height);
+
+    m_Crate = VoxelModel::Create("res/assets/exptest.vox");
 }
 
 void Application::OnResize()
