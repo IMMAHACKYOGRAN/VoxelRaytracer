@@ -3,7 +3,7 @@
 int main(int argc, char* argv[])
 {	
 	ApplicationSpecification spec;
-	spec.Name = "Voxel Raytracer";
+	spec.Name = "Axel";
 
 	Application* app = new Application(spec);
 	app->Run();

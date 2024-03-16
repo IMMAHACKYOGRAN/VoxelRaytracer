@@ -1,6 +1,7 @@
 #pragma once
 #include <memory>
 #include <string>
+#include <glm.hpp>
 
 struct FileStructure
 {
@@ -24,18 +25,14 @@ struct RGBA
 class VoxelModel
 {
 public:
-	VoxelModel();
 	VoxelModel(const std::string& filePath);
 	~VoxelModel();
 
-	static std::shared_ptr<VoxelModel> Create();
 	static std::shared_ptr<VoxelModel> Create(const std::string& filePath);
 
-	bool LoadModelFromFile(const std::string& filePath);
+	inline glm::vec3 GetSize() { return { m_SizeX, m_SizeY, m_SizeZ }; }
 
-	inline int GetSizeX() { return m_SizeX; }
-	inline int GetSizeY() { return m_SizeY; }
-	inline int GetSizeZ() { return m_SizeZ; }
+	void Bind();
 
 private:
 	void ReadInt(std::ifstream& file, int& value);
@@ -43,10 +40,15 @@ private:
 	void ReadString(std::ifstream& file, std::string& str, int length);
 	void ReadChunk(std::ifstream& file, Chunk& chunk);
 
+	bool LoadModelFromFile(const std::string& filePath);
+
 private:
+	uint32_t m_RendererID;
+
 	int m_SizeX, m_SizeY, m_SizeZ;
 
-	uint8_t* m_Voxels; // 3D texture containing pallet intex, 0 = no voxel.
+	uint8_t* m_Voxels; // 3D texture containing pallet index, 0 = no voxel.
+	int m_VoxelCount;
 
 	RGBA m_Pallete[256];
 };

@@ -189,6 +189,12 @@ void Shader::UploadUniformFloat4(const std::string& name, const glm::vec4& vec)
 	glUniform4f(location, vec.x, vec.y, vec.z, vec.w);
 }
 
+void Shader::UploadUniformFloat3Array(const std::string& name, uint32_t count, const float* value)
+{
+	GLint location = glGetUniformLocation(m_ShaderID, name.c_str());
+	glUniform3fv(location, count, value);
+}
+
 void Shader::UploadUniformInt(const std::string& name, int value)
 {
 	GLint location = glGetUniformLocation(m_ShaderID, name.c_str());

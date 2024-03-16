@@ -22,6 +22,9 @@ public:
 	void UploadUniformFloat3(const std::string& name, const glm::vec3& vec);
 	void UploadUniformFloat4(const std::string& name, const glm::vec4& vec);
 
+
+	void UploadUniformFloat3Array(const std::string& name, uint32_t count, const float* value);
+
 	void UploadUniformInt(const std::string& name, int value);
 	void UploadUniformInt2(const std::string& name, const glm::vec2& vec);
 	void UploadUniformInt3(const std::string& name, const glm::vec3& vec);

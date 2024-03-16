@@ -12,6 +12,7 @@ public:
 
 	void SetPosition(glm::vec3 pos) { m_Position = pos; }
 	glm::vec3 GetPosition() { return m_Position; }
+	glm::vec3 GetDirection() { return m_ForwardDirection; }
 
 	glm::mat4 GetProjectionMatrix() { return m_ProjectionMatrix; }
 	glm::mat4 GetInverseProjectionMatrix() { return m_InverseProjectionMatrix; }

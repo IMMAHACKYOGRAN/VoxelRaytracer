@@ -6,6 +6,7 @@
 
 #include <GL/glew.h>
 #include <GLFW/glfw3.h>
+#include <gtc/type_ptr.hpp>
 
 static Application* s_Instance = nullptr;
 
@@ -45,7 +46,11 @@ void Application::Init()
     if (glewInit() != GLEW_OK)
         printf("GLEW not ok.\n");
 
-    glEnable(GL_DEPTH_TEST);
+    glEnable(GL_BLEND);
+    glEnable(GL_DEPTH_TEST); 
+    //glEnable(GL_CULL_FACE);
+
+    glfwSwapInterval(1);
 
     glfwSetWindowUserPointer(m_Window, &m_WindowData);
 
@@ -97,13 +102,15 @@ void Application::Init()
     m_VertexArray->AddVertexBuffer(m_VertexBuffer);
     m_VertexArray->SetIndexBuffer(m_IndexBuffer);
 
-    m_Shader = Shader::Create("res/shaders/3D.glsl");
+    m_Shader = Shader::Create("res/shaders/vVoxel.glsl", "res/shaders/fVoxel.glsl");
+    //m_Shader = Shader::Create("res/shaders/VoxelVert.glsl", "res/shaders/VoxelFrag.glsl");
     m_Shader->Bind();
 
     m_Camera.SetPosition({ 0.0f, 0.0f, 2.0f });
     m_Camera.OnResize(m_WindowData.Width, m_WindowData.Height);
 
-    m_Crate = VoxelModel::Create("res/assets/exptest.vox");
+    m_Crate = VoxelModel::Create("res/assets/Crate.vox");
+    m_Crate->Bind();
 }
 
 void Application::OnResize()
@@ -143,21 +150,34 @@ void Application::Run()
 
             m_Camera.OnUpdate(deltaTime);
 
-            m_ModelMat = glm::rotate(m_ModelMat, glm::radians(30.0f) * deltaTime, glm::vec3(0.0f, 1.0f, 0.0f));
+            //m_ModelMat = glm::rotate(m_ModelMat, glm::radians(30.0f) * deltaTime, glm::vec3(0.0f, 1.0f, 0.0f));
 
+            // Vertex
             m_Shader->UploadUniformMat4("u_Model", m_ModelMat);
-            m_Shader->UploadUniformMat4("u_Projection", m_Camera.GetProjectionMatrix());
             m_Shader->UploadUniformMat4("u_View", m_Camera.GetViewMatrix());
+            m_Shader->UploadUniformMat4("u_Projection", m_Camera.GetProjectionMatrix());
+            
+            // Frag
+            m_Shader->UploadUniformFloat3("u_CamPos", m_Camera.GetPosition());
+            m_Shader->UploadUniformFloat3("u_CamDir", m_Camera.GetDirection());
+            m_Shader->UploadUniformMat4("u_InverseProjection", m_Camera.GetInverseProjectionMatrix());
+            m_Shader->UploadUniformMat4("u_InverseView", m_Camera.GetInverseViewMatrix());
+            m_Shader->UploadUniformInt2("u_Resolution", { GetWidth(), GetHeight() });
+            m_Shader->UploadUniformFloat3("u_ObjectSize", m_Crate->GetSize());
 
             glDrawElements(GL_TRIANGLES, 36, GL_UNSIGNED_INT, nullptr);
 
             m_ImGuiLayer->Begin();
 
-            ImGui::Begin("Test");
-            ImGui::Text("Hello World");
+            ImGui::Begin("Debug");
+            ImGui::Text("Rendering Stats");
+            ImGui::Separator();
+            ImGui::Text("Frame Time: %f", deltaTime);
+            ImGui::Text("FPS: %d", (int)(1.0f / deltaTime)); 
             ImGui::End();
 
             m_ImGuiLayer->End();
+
             glfwSwapBuffers(m_Window);
         }
     }
