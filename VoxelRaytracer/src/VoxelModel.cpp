@@ -18,7 +18,6 @@ VoxelModel::VoxelModel(const std::string& filePath)
     }
 
     //not sending data properly
-
     glGenTextures(1, &m_RendererID);
     glBindTexture(GL_TEXTURE_3D, m_RendererID);
 
@@ -27,7 +26,8 @@ VoxelModel::VoxelModel(const std::string& filePath)
     glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_WRAP_T, GL_REPEAT);
     glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 
-    glTexImage3D(GL_TEXTURE_3D, 0, GL_R16UI, m_SizeX, m_SizeY, m_SizeZ, 0, GL_RED_INTEGER, GL_UNSIGNED_SHORT, m_Voxels);
+    glTexImage3D(GL_TEXTURE_3D, 0, GL_R16UI, m_SizeX, m_SizeY, m_SizeZ, 0, GL_RED_INTEGER, GL_UNSIGNED_BYTE, m_Voxels);
+    glBindTexture(GL_TEXTURE_3D, 0);
 
     // Pack ubyte buffer into a uint buffer to send to the GPU.
     /*uint32_t voxelBufferSize = m_VoxelCount / 4;

@@ -5,8 +5,12 @@
 
 #include "Renderer/Shader.h"
 #include "Renderer/VertexArray.h"
+#include "Renderer/FrameBuffer.h"
 
 #include "ImGui/ImGuiLayer.h"
+
+#include "UIPannels/SceneHierarchyPanel.h"
+#include "UIPannels/PropertiesPanel.h"
 
 struct ApplicationSpecification
 {
@@ -48,6 +52,7 @@ private:
 	std::shared_ptr<VertexArray> m_VertexArray;
 	std::shared_ptr<VertexBuffer> m_VertexBuffer;
 	std::shared_ptr<IndexBuffer> m_IndexBuffer;
+	std::shared_ptr<FrameBuffer> m_FrameBuffer;
 
 	Camera m_Camera;
 	std::shared_ptr<Shader> m_Shader;
@@ -66,6 +71,9 @@ private:
 	WindowData m_WindowData;
 
 	float m_LastTime = 0;
+
+	SceneHeirarchyPanel m_ScenePanel;
+	PropertiesPanel m_PropertiesPanel;
 
 	//tmp
 	glm::mat4 m_ModelMat = glm::mat4(1.0f);

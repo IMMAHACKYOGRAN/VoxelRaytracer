@@ -64,6 +64,12 @@ void Application::Init()
 
     m_ImGuiLayer->Init();
 
+    FrameBufferSpecification fbspec;
+    fbspec.Width = m_WindowData.Width;
+    fbspec.Height = m_WindowData.Height;
+    m_FrameBuffer = FrameBuffer::Create(fbspec);
+
+
     float cubeVerts[] = {
         -0.5f, -0.5f, -0.5f, 0.0f, 0.0f, 0.0f,
          0.5f, -0.5f, -0.5f, 1.0f, 0.0f, 0.0f,
@@ -145,12 +151,13 @@ void Application::Run()
         glfwPollEvents();
         if (!m_Minimised)
         {
+            m_FrameBuffer->Bind();
             glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
             glClearColor(0.4f, 0.4f, 0.4f, 0.0f);
 
             m_Camera.OnUpdate(deltaTime);
 
-            //m_ModelMat = glm::rotate(m_ModelMat, glm::radians(30.0f) * deltaTime, glm::vec3(0.0f, 1.0f, 0.0f));
+            m_ModelMat = glm::rotate(m_ModelMat, glm::radians(30.0f) * deltaTime, glm::vec3(0.0f, 1.0f, 0.0f));
 
             // Vertex
             m_Shader->UploadUniformMat4("u_Model", m_ModelMat);
@@ -166,14 +173,80 @@ void Application::Run()
             m_Shader->UploadUniformFloat3("u_ObjectSize", m_Crate->GetSize());
 
             glDrawElements(GL_TRIANGLES, 36, GL_UNSIGNED_INT, nullptr);
+            m_FrameBuffer->Unbind();
 
             m_ImGuiLayer->Begin();
+
+            bool docspaceOpen = true;
+            ImGuiDockNodeFlags dockspace_flags = ImGuiDockNodeFlags_None;
+
+            ImGuiWindowFlags window_flags = ImGuiWindowFlags_MenuBar | ImGuiWindowFlags_NoDocking;
+            const ImGuiViewport* viewport = ImGui::GetMainViewport();
+            ImGui::SetNextWindowPos(viewport->WorkPos);
+            ImGui::SetNextWindowSize(viewport->WorkSize);
+            ImGui::SetNextWindowViewport(viewport->ID);
+            ImGui::PushStyleVar(ImGuiStyleVar_WindowRounding, 0.0f);
+            ImGui::PushStyleVar(ImGuiStyleVar_WindowBorderSize, 0.0f);
+            window_flags |= ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove;
+            window_flags |= ImGuiWindowFlags_NoBringToFrontOnFocus | ImGuiWindowFlags_NoNavFocus;
+            ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(0.0f, 0.0f));
+
+            ImGui::Begin("Dockspace", &docspaceOpen, window_flags);
+            
+            ImGui::PopStyleVar();
+            ImGui::PopStyleVar(2);
+
+            ImGuiIO& io = ImGui::GetIO();
+            
+            ImGuiID dockspace_id = ImGui::GetID("Dockspace");
+            ImGui::DockSpace(dockspace_id, ImVec2(0.0f, 0.0f), dockspace_flags);
+
+            if (ImGui::BeginMenuBar())
+            {
+                if (ImGui::BeginMenu("File"))
+                {
+                    if (ImGui::MenuItem("New")) {/*Create new project*/}
+                    if (ImGui::MenuItem("Open")) {/*Open existing project*/}
+                    if (ImGui::MenuItem("Exit")) { m_Running = false; }
+
+                    ImGui::EndMenu();
+                }
+
+                if (ImGui::BeginMenu("Edit"))
+                {
+                    if (ImGui::MenuItem("Undo")) {}
+                    if (ImGui::MenuItem("Redo")) { }
+                    ImGui::EndMenu();
+                }
+
+                ImGui::EndMenuBar();
+            }
+
+            m_PropertiesPanel.OnImGuiDraw();
+            m_ScenePanel.OnImGuiDraw();
+        
+
+            ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(0.0f, 0.0f));
+            ImGui::Begin("Viewport");
+            ImGui::Image((void*)m_FrameBuffer->GetColourAttachment(), ImVec2{ ImGui::GetContentRegionAvail().x, ImGui::GetContentRegionAvail().y });
+            ImGui::End();
+            ImGui::PopStyleVar();
+
+            ImGui::Begin("File Manager");
+            ImGui::End();
+
+            ImGui::Begin("Console");
+            ImGui::End();
 
             ImGui::Begin("Debug");
             ImGui::Text("Rendering Stats");
             ImGui::Separator();
             ImGui::Text("Frame Time: %f", deltaTime);
-            ImGui::Text("FPS: %d", (int)(1.0f / deltaTime)); 
+            ImGui::Text("FPS: %d", (int)(1.0f / deltaTime));
+            ImGui::End();
+
+            ImGui::ShowDemoWindow();
+
             ImGui::End();
 
             m_ImGuiLayer->End();
