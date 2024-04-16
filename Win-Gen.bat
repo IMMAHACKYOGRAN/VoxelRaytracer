@@ -1,3 +1,3 @@
 @echo off
-call premake\premake5.exe vs2022
-PAUSE
+call premake\premake5.exe --file=Build.lua vs2022
+pause
