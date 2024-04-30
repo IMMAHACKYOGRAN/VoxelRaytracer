@@ -16,13 +16,12 @@ project "Axel-Core"
         "src/**.cpp",
         "vendor/glm/**.hpp",
         "vendor/glm/**.inl",
-        "vendor/imgui/**.h",
-        "vendor/imgui/**.cpp",
     }
 
     defines
     {
         "_CRT_SECURE_NO_WARNINGS",
+        "GLFW_INCLUDE_NONE",
     }
 
     includedirs
@@ -33,13 +32,13 @@ project "Axel-Core"
         "vendor/GLFW/include",
         "vendor/Glad/include",
         "vendor/imgui",
-        "imgui",
     }
 
     links
     {
         "GLFW",
         "Glad",
+        "imgui",
         "opengl32.lib",
     }
 

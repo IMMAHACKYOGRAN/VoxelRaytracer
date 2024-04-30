@@ -7,6 +7,8 @@
 #include "Core/LayerStack.h"
 #include "Core/Window.h"
 
+#include "ImGui/ImGuiLayer.h"
+
 namespace Axel
 {
 	class Application
@@ -21,6 +23,7 @@ namespace Axel
 		void OnEvent(Event& e);
 
 		void PushLayer(Layer* layer);
+		void PushOverlay(Layer* overlay);
 
 		inline static Application& Get() { return *s_Instance; }
 		inline Window& GetWindow() { return *m_Window; }
@@ -31,6 +34,7 @@ namespace Axel
 
 	private:
 		std::unique_ptr<Window> m_Window;
+		ImGuiLayer* m_ImGuiLayer;
 		bool m_Running = true;
 		bool m_Minimised = false;
 		LayerStack m_LayerStack;

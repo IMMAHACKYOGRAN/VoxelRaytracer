@@ -1,6 +1,7 @@
 #include "pch.h"
 
 #include "Application.h"
+#include "Renderer/Renderer.h"
 
 namespace Axel
 {
@@ -13,6 +14,11 @@ namespace Axel
 
 		m_Window = std::unique_ptr<Window>(new Window());
 		m_Window->SetEventCallback(std::bind(&Application::OnEvent, this, std::placeholders::_1));
+
+		Renderer::Init();
+
+		m_ImGuiLayer = new ImGuiLayer;
+		PushOverlay(m_ImGuiLayer);
 	}
 
 	Application::~Application()
@@ -32,6 +38,11 @@ namespace Axel
 				for (Layer* layer : m_LayerStack)
 					layer->OnUpdate(timeStep);
 			}
+
+			m_ImGuiLayer->Begin();
+			for (Layer* layer : m_LayerStack)
+				layer->OnImGuiRender();
+			m_ImGuiLayer->End();
 
 			m_Window->OnUpdate();
 		}
@@ -61,6 +72,13 @@ namespace Axel
 		m_LayerStack.PushLayer(layer);
 		layer->OnAttach();
 	}
+
+	void Application::PushOverlay(Layer* overlay)
+	{
+		m_LayerStack.PushOverlay(overlay);
+		overlay->OnAttach();
+	}
+
 	bool Application::OnWindowClose(WindowCloseEvent& e)
 	{
 		m_Running = false;
@@ -75,8 +93,9 @@ namespace Axel
 			return false;
 		}
 
+		Renderer::SetViewport(0, 0, e.GetWidth(), e.GetHeight());
+
 		m_Minimised = false;
-		//Renderer::OnWindowResize(e.GetWidth(), e.GetHeight());
 
 		return false;
 	}

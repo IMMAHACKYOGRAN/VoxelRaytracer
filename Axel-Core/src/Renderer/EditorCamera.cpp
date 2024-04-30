@@ -1,24 +1,26 @@
 #include "pch.h"
 
-#include "Camera.h"
+#include "EditorCamera.h"
 
 #include <gtc/matrix_transform.hpp>
 #include <gtc/quaternion.hpp>
 #include <gtx/quaternion.hpp>
 
+#include "Core/Input.h"
+
 namespace Axel
 {
-	Camera::Camera(float verticalFOV, float nearClip, float farClip)
+	EditorCamera::EditorCamera(float verticalFOV, float nearClip, float farClip)
 		: m_VerticalFOV(verticalFOV), m_NearClip(nearClip), m_FarClip(farClip)
 	{
 		m_ForwardDirection = glm::vec3(0, 0, -1);
 	}
 
-	Camera::~Camera()
+	EditorCamera::~EditorCamera()
 	{
 	}
 
-	void Camera::OnUpdate(float dt)
+	void EditorCamera::OnUpdate(float dt)
 	{
 		glm::vec2 mousePos = Input::GetMousePosition();
 		glm::vec2 delta = (mousePos - m_LastMousePosition);
@@ -32,7 +34,7 @@ namespace Axel
 		float speed = 1.0f;
 		float sensitivity = 0.002f;
 
-		if (Input::IsKeyDown(KeyCode::R))
+		if (Input::IsKeyDown(Key::R))
 			m_ShouldUpdate = !m_ShouldUpdate;
 
 		if (!m_ShouldUpdate)
@@ -96,7 +98,7 @@ namespace Axel
 		}
 	}
 
-	void Camera::OnResize(uint32_t width, uint32_t height)
+	void EditorCamera::OnResize(uint32_t width, uint32_t height)
 	{
 		if (width == m_ViewportWidth && height == m_ViewportHeight)
 			return;
@@ -108,13 +110,13 @@ namespace Axel
 		RecalculateViewMatrix();
 	}
 
-	void Camera::RecalculateProjectionMatrix()
+	void EditorCamera::RecalculateProjectionMatrix()
 	{
 		m_ProjectionMatrix = glm::perspectiveFov(glm::radians(m_VerticalFOV), (float)m_ViewportWidth, (float)m_ViewportHeight, m_NearClip, m_FarClip);
 		m_InverseProjectionMatrix = glm::inverse(m_ProjectionMatrix);
 	}
 
-	void Camera::RecalculateViewMatrix()
+	void EditorCamera::RecalculateViewMatrix()
 	{
 		m_ViewMatrix = glm::lookAt(m_Position, m_Position + m_ForwardDirection, glm::vec3(0, 1, 0));
 		m_InverseViewMatrix = glm::inverse(m_ViewMatrix);

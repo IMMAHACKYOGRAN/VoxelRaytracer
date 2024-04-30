@@ -2,7 +2,7 @@ project "Axel-Editor"
     kind "ConsoleApp"
     language "C++"
     cppdialect "C++20"
-    staticruntime "off"
+    staticruntime "on"
 
     files 
     {
@@ -14,9 +14,10 @@ project "Axel-Editor"
 
     includedirs
     {
+        "../Axel-Core/src",
+        "../Axel-Core/vendor",
         "../Axel-Core/vendor/spdlog/include",
         "../Axel-Core/vendor/GLFW/include",
-        "../Axel-Core/src",
         "../Axel-Core/vendor/imgui",
     }
 

@@ -2,8 +2,6 @@
 
 #include "Event.h"
 
-#include <sstream>
-
 namespace Axel {
 
 	class MouseMovedEvent : public Event

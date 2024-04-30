@@ -5,6 +5,8 @@
 #include "Events/MouseEvent.h"
 #include "Events/KeyEvent.h"
 
+#include <glad/glad.h>
+
 namespace Axel
 {
 	static bool s_GLFWInitialised = false;
@@ -40,99 +42,101 @@ namespace Axel
 
 		m_Window = glfwCreateWindow((int)spec.Width, (int)spec.Height, m_Data.Name.c_str(), nullptr, nullptr);
 		glfwMakeContextCurrent(m_Window);
+		int status = gladLoadGLLoader((GLADloadproc)glfwGetProcAddress);
+		AX_ASSERT(status, "Could not intialise Glad");
 		glfwSetWindowUserPointer(m_Window, &m_Data);
 		SetVSync(true);
 
 		glfwSetWindowSizeCallback(m_Window, [](GLFWwindow* window, int width, int height)
-				{
-					WindowData& data = *(WindowData*)glfwGetWindowUserPointer(window);
-					data.Width = width;
-					data.Height = height;
+			{
+				WindowData& data = *(WindowData*)glfwGetWindowUserPointer(window);
+				data.Width = width;
+				data.Height = height;
 
-					WindowResizeEvent e(width, height);
+				WindowResizeEvent e(width, height);
+				data.EventCallBack(e);
+			});
+
+		glfwSetWindowCloseCallback(m_Window, [](GLFWwindow* window)
+			{
+				WindowData& data = *(WindowData*)glfwGetWindowUserPointer(window);
+				WindowCloseEvent e;
+				data.EventCallBack(e);
+			});
+
+		glfwSetKeyCallback(m_Window, [](GLFWwindow* window, int key, int scancode, int action, int mods)
+			{
+				WindowData& data = *(WindowData*)glfwGetWindowUserPointer(window);
+
+				switch (action)
+				{
+				case GLFW_PRESS:
+				{
+					KeyPressedEvent e(key, 0);
 					data.EventCallBack(e);
-				});
+					break;
+				}
 
-			glfwSetWindowCloseCallback(m_Window, [](GLFWwindow* window)
+				case GLFW_RELEASE:
 				{
-					WindowData& data = *(WindowData*)glfwGetWindowUserPointer(window);
-					WindowCloseEvent e;
+					KeyReleasedEvent e(key);
 					data.EventCallBack(e);
-				});
+					break;
+				}
 
-			glfwSetKeyCallback(m_Window, [](GLFWwindow* window, int key, int scancode, int action, int mods)
+				case GLFW_REPEAT:
 				{
-					WindowData& data = *(WindowData*)glfwGetWindowUserPointer(window);
-
-					switch (action)
-					{
-					case GLFW_PRESS:
-					{
-						KeyPressedEvent e(key, 0);
-						data.EventCallBack(e);
-						break;
-					}
-
-					case GLFW_RELEASE:
-					{
-						KeyReleasedEvent e(key);
-						data.EventCallBack(e);
-						break;
-					}
-
-					case GLFW_REPEAT:
-					{
-						KeyPressedEvent e(key, 1);
-						data.EventCallBack(e);
-						break;
-					}
-					}
-				});
-
-			glfwSetCharCallback(m_Window, [](GLFWwindow* window, uint32_t key)
-				{
-					WindowData& data = *(WindowData*)glfwGetWindowUserPointer(window);
-					KeyTypedEvent e(key);
+					KeyPressedEvent e(key, 1);
 					data.EventCallBack(e);
-				});
+					break;
+				}
+				}
+			});
 
-			glfwSetMouseButtonCallback(m_Window, [](GLFWwindow* window, int button, int action, int mods)
+		glfwSetCharCallback(m_Window, [](GLFWwindow* window, uint32_t key)
+			{
+				WindowData& data = *(WindowData*)glfwGetWindowUserPointer(window);
+				KeyTypedEvent e(key);
+				data.EventCallBack(e);
+			});
+
+		glfwSetMouseButtonCallback(m_Window, [](GLFWwindow* window, int button, int action, int mods)
+			{
+				WindowData& data = *(WindowData*)glfwGetWindowUserPointer(window);
+
+				switch (action)
 				{
-					WindowData& data = *(WindowData*)glfwGetWindowUserPointer(window);
-
-					switch (action)
-					{
-					case GLFW_PRESS:
-					{
-						MouseButtonPressedEvent e(button);
-						data.EventCallBack(e);
-						break;
-					}
-
-					case GLFW_RELEASE:
-					{
-						MouseButtonReleasedEvent e(button);
-						data.EventCallBack(e);
-						break;
-					}
-					}
-				});
-
-			glfwSetScrollCallback(m_Window, [](GLFWwindow* window, double xoffset, double yoffset)
+				case GLFW_PRESS:
 				{
-					WindowData& data = *(WindowData*)glfwGetWindowUserPointer(window);
-
-					MouseScrolledEvent e((float)xoffset, (float)yoffset);
+					MouseButtonPressedEvent e(button);
 					data.EventCallBack(e);
-				});
+					break;
+				}
 
-			glfwSetCursorPosCallback(m_Window, [](GLFWwindow* window, double xPos, double yPos)
+				case GLFW_RELEASE:
 				{
-					WindowData& data = *(WindowData*)glfwGetWindowUserPointer(window);
-
-					MouseMovedEvent e((float)xPos, (float)yPos);
+					MouseButtonReleasedEvent e(button);
 					data.EventCallBack(e);
-				});
+					break;
+				}
+				}
+			});
+
+		glfwSetScrollCallback(m_Window, [](GLFWwindow* window, double xoffset, double yoffset)
+			{
+				WindowData& data = *(WindowData*)glfwGetWindowUserPointer(window);
+
+				MouseScrolledEvent e((float)xoffset, (float)yoffset);
+				data.EventCallBack(e);
+			});
+
+		glfwSetCursorPosCallback(m_Window, [](GLFWwindow* window, double xPos, double yPos)
+			{
+				WindowData& data = *(WindowData*)glfwGetWindowUserPointer(window);
+
+				MouseMovedEvent e((float)xPos, (float)yPos);
+				data.EventCallBack(e);
+			});
 	}
 
 	void Window::Shutdown()

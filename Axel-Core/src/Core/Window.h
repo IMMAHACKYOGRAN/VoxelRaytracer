@@ -1,7 +1,8 @@
 #pragma once
-#include <GLFW/glfw3.h>
 
 #include "Events/Event.h"
+
+#include <GLFW/glfw3.h>
 
 namespace Axel
 {
@@ -34,7 +35,7 @@ namespace Axel
 		void SetVSync(bool enabled);
 		bool IsVSync() const;
 
-		inline void* GetNativeWindow() const { return m_Window; };
+		inline GLFWwindow* GetNativeWindow() const { return m_Window; };
 	private:
 		void Init(const WindowSpecification& spec);
 		void Shutdown();

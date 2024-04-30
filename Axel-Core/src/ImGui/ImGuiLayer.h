@@ -9,11 +9,11 @@ namespace Axel
 		ImGuiLayer();
 		~ImGuiLayer();
 
-		void OnAttach();
-		void OnDetach();
+		virtual void OnAttach() override;
+		virtual void OnDetach() override;
 
-		void OnUpdate();
-		void OnEvent(Event& e);
+		void Begin();
+		void End();
 	private:
 
 	};

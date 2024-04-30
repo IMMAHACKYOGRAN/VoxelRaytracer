@@ -1,25 +1,29 @@
 #pragma once
+
+#include "Events/Event.h"
+#include "Events/MouseEvent.h"
+
 #include <glm.hpp>
 
 namespace Axel
 {
-	class Camera
+	class EditorCamera
 	{
 	public:
-		Camera(float verticalFOV, float nearClip, float farClip);
-		~Camera();
+		EditorCamera(float verticalFOV, float nearClip, float farClip);
+		~EditorCamera();
 
 		void OnUpdate(float dt);
 		void OnResize(uint32_t width, uint32_t height);
 
 		void SetPosition(glm::vec3 pos) { m_Position = pos; }
-		glm::vec3 GetPosition() { return m_Position; }
-		glm::vec3 GetDirection() { return m_ForwardDirection; }
+		glm::vec3 GetPosition() const { return m_Position; }
+		glm::vec3 GetDirection() const { return m_ForwardDirection; }
 
-		glm::mat4 GetProjectionMatrix() { return m_ProjectionMatrix; }
-		glm::mat4 GetInverseProjectionMatrix() { return m_InverseProjectionMatrix; }
-		glm::mat4 GetViewMatrix() { return m_ViewMatrix; }
-		glm::mat4 GetInverseViewMatrix() { return m_InverseViewMatrix; }
+		glm::mat4 GetProjectionMatrix() const { return m_ProjectionMatrix; }
+		glm::mat4 GetInverseProjectionMatrix() const { return m_InverseProjectionMatrix; }
+		glm::mat4 GetViewMatrix() const { return m_ViewMatrix; }
+		glm::mat4 GetInverseViewMatrix() const { return m_InverseViewMatrix; }
 
 	private:
 		void RecalculateProjectionMatrix();
