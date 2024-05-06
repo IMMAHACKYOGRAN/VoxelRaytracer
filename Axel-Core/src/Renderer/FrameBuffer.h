@@ -1,32 +1,35 @@
 #pragma once
 #include <memory>
 
-struct FrameBufferSpecification
+namespace Axel
 {
-	uint32_t Width, Height;
+	struct FrameBufferSpecification
+	{
+		uint32_t Width, Height;
 
-	bool SwapChainTarget = false;
-};
+		bool SwapChainTarget = false;
+	};
 
 
-class FrameBuffer
-{
-public:
-	FrameBuffer(const FrameBufferSpecification& spec);
-	~FrameBuffer();
+	class FrameBuffer
+	{
+	public:
+		FrameBuffer(const FrameBufferSpecification& spec);
+		~FrameBuffer();
 
-	static std::shared_ptr<FrameBuffer> Create(const FrameBufferSpecification& spec);
+		static std::shared_ptr<FrameBuffer> Create(const FrameBufferSpecification& spec);
 
-	void Resize();
+		void Resize();
 
-	uint32_t GetColourAttachment() const { return m_ColourAttachment; }
-	FrameBufferSpecification GetSpecification() const { return m_Specification; }
+		uint32_t GetColourAttachment() const { return m_ColourAttachment; }
+		FrameBufferSpecification GetSpecification() const { return m_Specification; }
 
-	void Bind();
-	void Unbind();
+		void Bind();
+		void Unbind();
 
-private:
-	uint32_t m_RendererID;
-	uint32_t m_ColourAttachment, m_DepthAttachment;
-	FrameBufferSpecification m_Specification;
-};
+	private:
+		uint32_t m_RendererID;
+		uint32_t m_ColourAttachment, m_DepthAttachment;
+		FrameBufferSpecification m_Specification;
+	};
+}

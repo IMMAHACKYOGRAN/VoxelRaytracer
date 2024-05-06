@@ -1,7 +1,7 @@
 #pragma once
 #include <vector>
 
-#include "Components.h"
+#include "ECS/Components.h"
 
 class Entity
 {
@@ -11,5 +11,4 @@ public:
 
 private:
 	uint32_t m_EntityID;
-	std::vector<> m_Components;
 };

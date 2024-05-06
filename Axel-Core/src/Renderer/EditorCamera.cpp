@@ -10,10 +10,13 @@
 
 namespace Axel
 {
-	EditorCamera::EditorCamera(float verticalFOV, float nearClip, float farClip)
-		: m_VerticalFOV(verticalFOV), m_NearClip(nearClip), m_FarClip(farClip)
+	EditorCamera::EditorCamera(float verticalFOV, float nearClip, float farClip, float vpWidth, float vpHeight)
+		//TODO: Remove the need for viewport w&h to be set manualy.
+		: m_VerticalFOV(verticalFOV), m_NearClip(nearClip), m_FarClip(farClip), m_ViewportWidth(vpWidth), m_ViewportHeight(vpHeight)
 	{
 		m_ForwardDirection = glm::vec3(0, 0, -1);
+		RecalculateProjectionMatrix();
+		RecalculateViewMatrix();
 	}
 
 	EditorCamera::~EditorCamera()
@@ -98,16 +101,24 @@ namespace Axel
 		}
 	}
 
-	void EditorCamera::OnResize(uint32_t width, uint32_t height)
+	void EditorCamera::OnEvent(Event& e)
 	{
-		if (width == m_ViewportWidth && height == m_ViewportHeight)
-			return;
+		EventDispatcher dispatcher(e);
+		dispatcher.Dispatch<WindowResizeEvent>(std::bind(&EditorCamera::OnResize, this, std::placeholders::_1));
+	}
 
-		m_ViewportWidth = width;
-		m_ViewportHeight = height;
+	bool EditorCamera::OnResize(WindowResizeEvent& e)
+	{
+		if (e.GetWidth()  == m_ViewportWidth && e.GetHeight() == m_ViewportHeight)
+			return false;
+
+		m_ViewportWidth = e.GetWidth();
+		m_ViewportHeight = e.GetHeight();
 
 		RecalculateProjectionMatrix();
 		RecalculateViewMatrix();
+
+		return false;
 	}
 
 	void EditorCamera::RecalculateProjectionMatrix()

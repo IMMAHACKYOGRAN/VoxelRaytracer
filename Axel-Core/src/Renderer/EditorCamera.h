@@ -2,6 +2,7 @@
 
 #include "Events/Event.h"
 #include "Events/MouseEvent.h"
+#include "Events/ApplicationEvent.h"
 
 #include <glm.hpp>
 
@@ -10,11 +11,13 @@ namespace Axel
 	class EditorCamera
 	{
 	public:
-		EditorCamera(float verticalFOV, float nearClip, float farClip);
+		EditorCamera(float verticalFOV, float nearClip, float farClip, float vpWidth, float vpHeight);
 		~EditorCamera();
 
 		void OnUpdate(float dt);
-		void OnResize(uint32_t width, uint32_t height);
+		void OnEvent(Event& e);
+
+		bool OnResize(WindowResizeEvent& e);
 
 		void SetPosition(glm::vec3 pos) { m_Position = pos; }
 		glm::vec3 GetPosition() const { return m_Position; }

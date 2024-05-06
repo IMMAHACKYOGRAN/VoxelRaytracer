@@ -1,7 +1,9 @@
 #include "pch.h"
 
 #include "Renderer/Renderer.h"
+
 #include <glad/glad.h>
+#include <gtc/matrix_transform.hpp>
 
 namespace Axel
 {
@@ -21,11 +23,11 @@ namespace Axel
 	void Renderer::Init()
 	{
 		glEnable(GL_BLEND);
-		//glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
 		glEnable(GL_DEPTH_TEST);
-		//glEnable(GL_CULL_FACE);
-		//glFrontFace
+		glEnable(GL_CULL_FACE);
+		glFrontFace(GL_CW);
 
 		s_Data.CubeVertexArray = VertexArray::Create();
 
@@ -65,7 +67,7 @@ namespace Axel
 		std::shared_ptr<IndexBuffer> indexBuffer = IndexBuffer::Create(cubeIndecies, sizeof(cubeIndecies) / sizeof(uint32_t));
 		s_Data.CubeVertexArray->SetIndexBuffer(indexBuffer);
 
-		s_Data.VoxelShader = Shader::Create("../../res/shaders/3D.glsl");
+		s_Data.VoxelShader = Shader::Create("res/shaders/3D.glsl");
 		s_Data.VoxelShader->Bind();
 	}
 
@@ -77,6 +79,8 @@ namespace Axel
 	{
 		s_Data.View = camera.GetViewMatrix();
 		s_Data.Projection = camera.GetProjectionMatrix();
+
+		s_Data.RenderStats.DrawCalls = 0;
 	}
 
 	void Renderer::EndScene()
@@ -84,12 +88,14 @@ namespace Axel
 
 	}
 
-	void Renderer::DrawCube(VoxelVolume volume)
+	void Renderer::DrawCube(Transform transform)
 	{
 		s_Data.VoxelShader->Bind();
 		s_Data.VoxelShader->UploadUniformMat4("u_View", s_Data.View);
 		s_Data.VoxelShader->UploadUniformMat4("u_Projection", s_Data.Projection);
-		s_Data.VoxelShader->UploadUniformMat4("u_Model", glm::mat4(1.0f));
+
+		glm::mat4 modelmat = glm::translate(glm::mat4(1.0f), transform.Translate) * glm::scale(glm::mat4(1.0f), transform.Scale);
+		s_Data.VoxelShader->UploadUniformMat4("u_Model", modelmat);
 		
 		DrawIndexed();
 	}
