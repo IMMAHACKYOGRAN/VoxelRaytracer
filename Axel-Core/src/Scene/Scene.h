@@ -1,5 +1,5 @@
 #pragma once
-#include "ECS/Registry.h"
+#include <ECS/EntityRegistry.h>
 
 namespace Axel
 {
@@ -16,8 +16,12 @@ namespace Axel
 		Entity CreateEntity();
 		void DestroyEntity(Entity entity);
 
+		template<typename T>
+		std::vector<EntityId> GetEntitiesWith()	{ return m_Registry.GetEntitiesWith<T>(); }
 
-	private:
-		Registry m_Registry;
+		template<typename T>
+		T& GetComponentFromEntity(EntityId id) { return m_Registry.GetComponentFromEntity<T>(id); }
+
+		EntityRegistry<TransformComponent, VoxelRendererComponent> m_Registry;
 	};
 }

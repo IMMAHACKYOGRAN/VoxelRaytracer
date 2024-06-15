@@ -9,21 +9,25 @@ namespace Axel
 	class Entity
 	{
 	public:
-		Entity(Scene* scene) : m_Scene(scene) {}
+		Entity() = default;
+
+		Entity(Scene* scene) : m_Scene(scene)
+		{
+			m_EntityID = m_Scene->m_Registry.CreateEntity();
+		}
 
 		template<typename T, typename... Args>
 		inline T& AddComponent(Args&&... args)
 		{
-			if(HasComponent<T>()) {}
 			T& component = m_Scene->m_Registry.AddComponent<T>(m_EntityID, std::forward<args>...);
 			return component;
 		}
 
-		template<typename T>
+		/*template<typename T>
 		inline bool HasComponent()
 		{
 			return m_Scene->m_Registry.HasComponent<T>(m_EntityID);
-		}
+		}*/
 
 		operator uint32_t() const { return m_EntityID; }
 

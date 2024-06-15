@@ -3,17 +3,10 @@
 #include "Renderer/VertexArray.h"
 #include "Renderer/Shader.h"
 #include "EditorCamera.h"
+#include "ECS/Components.h"
 
 namespace Axel
 {
-	// TODO: Should be a component, only temp
-	struct Transform
-	{
-		glm::vec3 Translate = glm::vec3(1.0f);
-		glm::vec3 Rotation = glm::vec3(1.0f);
-		glm::vec3 Scale = glm::vec3(1.0f);
-	};
-
 	class Renderer
 	{
 	public:
@@ -27,7 +20,7 @@ namespace Axel
 
 		static void SetViewport(uint32_t x, uint32_t y, uint32_t width, uint32_t height);
 
-		static void DrawCube(Transform volume);
+		static void DrawCube(TransformComponent transform);
 
 		struct Stats
 		{

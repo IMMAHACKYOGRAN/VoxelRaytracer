@@ -9,6 +9,8 @@
 
 #include "ImGui/ImGuiLayer.h"
 
+#include "ECS/Entity.h"
+
 namespace Axel
 {
 	class Application

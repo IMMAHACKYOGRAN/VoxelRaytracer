@@ -1,4 +1,5 @@
 #pragma once
+#include <variant>
 #include <glm.hpp>
 #include <gtc/matrix_transform.hpp>
 #include <gtx/quaternion.hpp>
@@ -16,8 +17,8 @@ namespace Axel
 		glm::mat4 GetTransform() const
 		{
 			return glm::translate(glm::mat4(1.0f), Translation)
-				* glm::toMat4(glm::quat(Rotation))
-				* glm::scale(glm::mat4(1.0f), Scale);
+				 * glm::toMat4(glm::quat(Rotation))
+				 * glm::scale(glm::mat4(1.0f), Scale);
 		}
 	};
 
@@ -25,4 +26,11 @@ namespace Axel
 	{
 
 	};
+
+	template<typename... Components>
+	struct ComponentGroup
+	{
+	};
+
+	using AllComponents = ComponentGroup<TransformComponent, VoxelRendererComponent>;
 }
