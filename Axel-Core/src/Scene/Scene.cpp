@@ -12,5 +12,9 @@ namespace Axel
 	{
 	}
 
-	Entity Scene::CreateEntity() { return Entity{ this }; }
+	Entity& Scene::CreateEntity()
+	{
+		Entity e { this, m_Registry.CreateEntity() };
+		return e;
+	}
 }

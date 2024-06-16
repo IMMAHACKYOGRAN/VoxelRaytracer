@@ -13,15 +13,34 @@ namespace Axel
 		Scene();
 		~Scene();
 
-		Entity CreateEntity();
+		Entity& CreateEntity();
 		void DestroyEntity(Entity entity);
 
 		template<typename T>
-		std::vector<EntityId> GetEntitiesWith()	{ return m_Registry.GetEntitiesWith<T>(); }
+		T& AddComponent(EntityId entity)
+		{
+			return m_Registry.AddComponent<T>(entity);
+		}
 
 		template<typename T>
-		T& GetComponentFromEntity(EntityId id) { return m_Registry.GetComponentFromEntity<T>(id); }
+		bool HasComponent(EntityId entity)
+		{
+			return m_Registry.HasComponent<T>(entity);
+		}
 
-		EntityRegistry<TransformComponent, VoxelRendererComponent> m_Registry;
+		template<typename T>
+		T& GetComponent(EntityId entity)
+		{
+			return m_Registry.GetComponent<T>(entity);
+		}
+
+		template<typename T>
+		std::vector<EntityId> GetEntitysWith()
+		{
+
+		}
+
+	private:
+		EntityRegistry m_Registry;
 	};
 }

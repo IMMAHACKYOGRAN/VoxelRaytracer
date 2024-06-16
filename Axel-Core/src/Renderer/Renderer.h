@@ -27,7 +27,7 @@ namespace Axel
 			uint32_t SceneCount = 0;
 			uint32_t DrawCalls  = 0;
 			uint32_t TriCount  = 0;
-
+			
 			uint32_t GetTotalVertexCount() const { return TriCount * 3; }
 		};
 

@@ -14,6 +14,7 @@
 #include <unordered_set>
 #include <queue>
 #include <typeindex>
+#include <bitset>
 
 #include <Windows.h>
 

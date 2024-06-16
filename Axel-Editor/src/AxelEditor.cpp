@@ -6,7 +6,7 @@ public:
 	ExampleLayer()
 		: m_Camera(45.0f, 0.01f, 100.0f, Axel::Application::Get().GetWindow().GetWidth(), Axel::Application::Get().GetWindow().GetHeight())
 	{
-		m_Scene = std::make_shared<Axel::Scene>();
+		m_Scene = std::unique_ptr<Axel::Scene>(new Axel::Scene);
 		m_NewEntity = m_Scene->CreateEntity();
 		Axel::TransformComponent& trans = m_NewEntity.AddComponent<Axel::TransformComponent>();
 	}
@@ -35,8 +35,8 @@ public:
 
 		Axel::Renderer::BeginScene(m_Camera);
 
-		//for (auto entity : m_Scene->GetEntitiesWith<Axel::TransformComponent>())
-			//Axel::Renderer::DrawCube(m_Scene->GetComponentFromEntity<Axel::TransformComponent>(entity));
+		for (auto entity : m_Scene->GetEntitiesWith<Axel::TransformComponent>())
+		Axel::Renderer::DrawCube(entity.GetComponent<Axel::TransformComponent>());
 
 		Axel::Renderer::EndScene();
 	}
@@ -55,8 +55,9 @@ public:
 private:
 	Axel::EditorCamera m_Camera;
 
-	std::shared_ptr<Axel::Scene> m_Scene;
+	std::unique_ptr<Axel::Scene> m_Scene;
 	Axel::Entity m_NewEntity;
+	Axel::TransformComponent trans;
 
 	float m_Dt = 0; //TODO: remove
 };

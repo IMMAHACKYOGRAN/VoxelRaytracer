@@ -1,5 +1,5 @@
 #pragma once
-#include <vector>
+#include <pch.h>
 
 #include "ECS/Components.h"
 #include "Scene/Scene.h"
@@ -11,29 +11,34 @@ namespace Axel
 	public:
 		Entity() = default;
 
-		Entity(Scene* scene) : m_Scene(scene)
+		Entity(Scene* scene, EntityId id) : m_Scene(scene), m_EntityId(id)
 		{
-			m_EntityID = m_Scene->m_Registry.CreateEntity();
 		}
 
-		template<typename T, typename... Args>
-		inline T& AddComponent(Args&&... args)
+		template<typename T>
+		inline T& AddComponent()
 		{
-			T& component = m_Scene->m_Registry.AddComponent<T>(m_EntityID, std::forward<args>...);
+			T& component = m_Scene->AddComponent<T>(m_EntityId);
 			return component;
 		}
 
-		/*template<typename T>
+		template<typename T>
 		inline bool HasComponent()
 		{
-			return m_Scene->m_Registry.HasComponent<T>(m_EntityID);
-		}*/
+			return m_Scene->HasComponent<T>(m_EntityId);
+		}
 
-		operator uint32_t() const { return m_EntityID; }
+		template<typename T>
+		inline T& GetComponent()
+		{
+			return m_Scene->GetComponent<T>(m_EntityId);
+		}
+
+		operator uint32_t() const { return m_EntityId; }
 
 		bool operator == (const Entity& other) const
 		{
-			return m_EntityID == other.m_EntityID && m_Scene == other.m_Scene;
+			return m_EntityId == other.m_EntityId && m_Scene == other.m_Scene;
 		}
 
 		bool operator != (const Entity& other) const
@@ -42,7 +47,7 @@ namespace Axel
 		}
 
 	private:
-		uint32_t m_EntityID;
+		EntityId m_EntityId;
 		Scene* m_Scene = nullptr;
 	};
 }

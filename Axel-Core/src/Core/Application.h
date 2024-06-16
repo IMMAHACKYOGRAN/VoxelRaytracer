@@ -41,6 +41,11 @@ namespace Axel
 		bool m_Minimised = false;
 		LayerStack m_LayerStack;
 		float m_LastFrameTime = 0.0f;
+		
+		// TEMP
+		std::unique_ptr<Scene> m_Scene;
+		Entity ent;
+
 	private:
 		static Application* s_Instance;
 	};

@@ -4,73 +4,126 @@
 
 namespace Axel
 {
-	using EntityId = std::uint32_t;
+	using EntityId = uint32_t;
+	using ComponentSigniture = std::bitset<32>;
 	using ComponentId = decltype(std::declval<std::type_info>().hash_code());
-	using ComponentNameType = decltype(std::declval<std::type_info>().name());
 
-	template<typename... Components>
+	class BaseComponentPool
+	{
+	public:
+		virtual ~BaseComponentPool() {}
+	};
+
+	template <typename T>
+	class ComponentPool : public BaseComponentPool
+	{
+	public:
+		ComponentPool(uint32_t size) : m_Size(size)
+		{
+			m_Pool.reserve(size);
+
+			for (uint32_t i = 0; i < size; i++)
+				m_Pool.push_back(T());
+		}
+
+		T& Add(EntityId entity, T& component)
+		{
+			m_Pool[entity] = component;
+			return m_Pool[entity];
+		}
+
+		T& Get(EntityId entity)
+		{
+			return m_Pool[entity];
+		}
+
+	private:
+		uint32_t m_Size;
+		std::vector<T> m_Pool;
+	};
+
 	class EntityRegistry
 	{
 	public:
-		EntityRegistry(uint32_t maxEntities = 10000) : m_MaxEntities(maxEntities)
+		EntityRegistry(uint32_t maxEntities = 1000) : m_MaxEntities(maxEntities)
 		{
-			for (EntityId id = 0; id < m_MaxEntities; id++)
-				m_AvailableEntityIDs.push(id);
+			m_Signitures.reserve(m_MaxEntities);
 
-			init = true;
+			for (EntityId id = 0; id < m_MaxEntities; id++)
+			{
+				m_AvailableEntityIDs.push(id);
+				m_Signitures.push_back(ComponentSigniture());
+			}
+		}
+
+		template<typename T>
+		void RegisterComponent()
+		{
+			ComponentId componentid = typeid(T).hash_code();
+			m_ComponentPools.insert({ componentid, std::make_unique<ComponentPool<T>>(m_MaxEntities) });
+			if (m_SignitureIndex.insert({ componentid, m_CurrentSignitureIndex }).second)
+				m_CurrentSignitureIndex++;
 		}
 
 		EntityId CreateEntity() { return GetUniqueID(); }
 
-		template<typename T, typename... Args>
-		T& AddComponent(EntityId entity, Args&&... args)
+		template<typename T>
+		T& AddComponent(EntityId entity)
 		{
 			T component{};
 			ComponentId componentid = typeid(T).hash_code();
-			m_ComponentsToEntities[componentid].push_back({ entity, component });
-			m_EntitiesToComponents[entity].push_back(component);
+
+			if (m_ComponentPools.find(componentid) == m_ComponentPools.end())
+				RegisterComponent<T>();
+
+			ComponentPool<T>* componentpool = dynamic_cast<ComponentPool<T>*>(m_ComponentPools[componentid].get());
+
+			componentpool->Add(entity, component);
+			m_Signitures[entity].set(m_SignitureIndex[componentid], true);
+			
 			return component;
 		}
 
-		// TODO: Make it work for multiple types.
 		template<typename T>
-		std::vector<EntityId> GetEntitiesWith()
+		bool HasComponent(EntityId entity)
 		{
-			std::vector<EntityId> ret;
 			ComponentId componentid = typeid(T).hash_code();
-			for (auto& pair : m_ComponentsToEntities[componentid])
-				ret.push_back(std::get<0>(pair));
+			
+			if (m_ComponentPools.find(componentid) == m_ComponentPools.end())
+				RegisterComponent<T>();
 
-			return ret;
+			return m_Signitures[entity].test(m_SignitureIndex[componentid]);
 		}
 
-		template<typename T> // Finish
-		T& GetComponentFromEntity(EntityId id)
+		template<typename T>
+		T& GetComponent(EntityId entity)
 		{
-			m_EntitiesToComponents[id];
-			T& ret = std::get<T>();
-			return ret;
+			ComponentId componentid = typeid(T).hash_code();
+
+			if (m_ComponentPools.find(componentid) == m_ComponentPools.end())
+				RegisterComponent<T>();
+
+			ComponentPool<T>* componentpool = dynamic_cast<ComponentPool<T>*>(m_ComponentPools[componentid].get());
+
+			return componentpool->Get(entity);
 		}
 
 	private:
 		EntityId GetUniqueID()
 		{
- 			AX_ASSERT(init, "Entity registry not initialised");
-
 			EntityId id = m_AvailableEntityIDs.front();
 			m_AvailableEntityIDs.pop();
 			return id;
-
 		}
 
 	private:
-		std::unordered_map<ComponentId, std::vector<std::pair<EntityId, std::variant<Components...>>>> m_ComponentsToEntities;
-		std::unordered_map<EntityId, std::vector<std::variant<Components...>>> m_EntitiesToComponents;
-		std::unordered_map<ComponentId, uint32_t> m_VariantMap;
+		std::unordered_map<ComponentId, std::unique_ptr<BaseComponentPool>> m_ComponentPools;
+
+		uint32_t m_CurrentSignitureIndex = 0;
+		std::unordered_map<ComponentId, uint32_t> m_SignitureIndex;
+		std::vector<ComponentSigniture> m_Signitures;
 
 		std::queue<EntityId> m_AvailableEntityIDs;
 		uint32_t m_MaxEntities;
-
-		bool init = false;
 	};
 } // Reference: https://austinmorlan.com/posts/entity_component_system/

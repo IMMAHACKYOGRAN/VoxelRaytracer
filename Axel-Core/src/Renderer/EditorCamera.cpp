@@ -109,7 +109,10 @@ namespace Axel
 
 	bool EditorCamera::OnResize(WindowResizeEvent& e)
 	{
-		if (e.GetWidth()  == m_ViewportWidth && e.GetHeight() == m_ViewportHeight)
+		if (e.GetWidth() == m_ViewportWidth && e.GetHeight() == m_ViewportHeight)
+			return false;
+
+		if (e.GetWidth() == 0 || e.GetHeight() == 0)
 			return false;
 
 		m_ViewportWidth = e.GetWidth();

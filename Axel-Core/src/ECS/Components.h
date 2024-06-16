@@ -26,11 +26,4 @@ namespace Axel
 	{
 
 	};
-
-	template<typename... Components>
-	struct ComponentGroup
-	{
-	};
-
-	using AllComponents = ComponentGroup<TransformComponent, VoxelRendererComponent>;
 }
