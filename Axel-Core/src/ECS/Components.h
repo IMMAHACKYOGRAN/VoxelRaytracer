@@ -6,6 +6,16 @@
 
 namespace Axel
 {
+	struct NameComponent
+	{
+		std::string Name = std::string();
+
+		NameComponent() = default;
+		NameComponent(const std::string& name)
+			: Name(name) {}
+
+	};
+
 	struct TransformComponent
 	{
 		glm::vec3 Translation = glm::vec3(0.0f);

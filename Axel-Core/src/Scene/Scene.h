@@ -13,7 +13,8 @@ namespace Axel
 		Scene();
 		~Scene();
 
-		Entity& CreateEntity();
+		Entity CreateEntity();
+		Entity CreateEntity(const std::string& name);
 		void DestroyEntity(Entity entity);
 
 		template<typename T>
@@ -41,6 +42,9 @@ namespace Axel
 		}
 
 	private:
-		EntityRegistry m_Registry;
+		EntityRegistry m_Registry{10};
+
+		bool m_IsRunning = false;
+		bool m_IsPaused = false;
 	};
 }

@@ -12,9 +12,24 @@ namespace Axel
 	{
 	}
 
-	Entity& Scene::CreateEntity()
+	Entity Scene::CreateEntity()
 	{
-		Entity e { this, m_Registry.CreateEntity() };
+		EntityId id = m_Registry.CreateEntity();
+		Entity e{ this, id };
+
+		std::string name = "Entity " + std::to_string(id);
+		auto& nc = e.AddComponent<NameComponent>();
+		nc.Name = name;
+
+		return e;
+	}
+
+	Entity Scene::CreateEntity(const std::string& name)
+	{
+		Entity e{ this, m_Registry.CreateEntity() };
+		auto& nc = e.AddComponent<NameComponent>();
+		nc.Name = name;
+
 		return e;
 	}
 }

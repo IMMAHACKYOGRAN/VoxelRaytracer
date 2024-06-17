@@ -28,13 +28,13 @@ namespace Axel
 
 		T& Add(EntityId entity, T& component)
 		{
-			m_Pool[entity] = component;
-			return m_Pool[entity];
+			m_Pool.at(entity) = component;
+			return m_Pool.at(entity);
 		}
 
 		T& Get(EntityId entity)
 		{
-			return m_Pool[entity];
+			return m_Pool.at(entity);
 		}
 
 	private:
@@ -61,6 +61,7 @@ namespace Axel
 		{
 			ComponentId componentid = typeid(T).hash_code();
 			m_ComponentPools.insert({ componentid, std::make_unique<ComponentPool<T>>(m_MaxEntities) });
+			m_ComponentToEntities.insert({ componentid, std::vector<EntityId>() });
 			if (m_SignitureIndex.insert({ componentid, m_CurrentSignitureIndex }).second)
 				m_CurrentSignitureIndex++;
 		}
@@ -78,10 +79,9 @@ namespace Axel
 
 			ComponentPool<T>* componentpool = dynamic_cast<ComponentPool<T>*>(m_ComponentPools[componentid].get());
 
-			componentpool->Add(entity, component);
 			m_Signitures[entity].set(m_SignitureIndex[componentid], true);
 			
-			return component;
+			return componentpool->Add(entity, component);;
 		}
 
 		template<typename T>
@@ -108,6 +108,14 @@ namespace Axel
 			return componentpool->Get(entity);
 		}
 
+		template<typename... Ts>
+		std::vector<EntityId> GetView()
+		{
+			std::vector<EntityId> ents;
+
+
+		}
+
 	private:
 		EntityId GetUniqueID()
 		{
@@ -122,6 +130,8 @@ namespace Axel
 		uint32_t m_CurrentSignitureIndex = 0;
 		std::unordered_map<ComponentId, uint32_t> m_SignitureIndex;
 		std::vector<ComponentSigniture> m_Signitures;
+
+		std::unordered_map<ComponentId, std::vector<EntityId>> m_ComponentToEntities;
 
 		std::queue<EntityId> m_AvailableEntityIDs;
 		uint32_t m_MaxEntities;

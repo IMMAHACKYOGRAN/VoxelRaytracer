@@ -35,8 +35,8 @@ public:
 
 		Axel::Renderer::BeginScene(m_Camera);
 
-		for (auto entity : m_Scene->GetEntitiesWith<Axel::TransformComponent>())
-		Axel::Renderer::DrawCube(entity.GetComponent<Axel::TransformComponent>());
+		//for (auto entity : m_Scene->GetEntitiesWith<Axel::TransformComponent>())
+		Axel::Renderer::DrawCube(m_NewEntity.GetComponent<Axel::TransformComponent>());
 
 		Axel::Renderer::EndScene();
 	}

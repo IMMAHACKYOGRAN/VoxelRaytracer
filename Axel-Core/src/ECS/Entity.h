@@ -18,8 +18,7 @@ namespace Axel
 		template<typename T>
 		inline T& AddComponent()
 		{
-			T& component = m_Scene->AddComponent<T>(m_EntityId);
-			return component;
+			return m_Scene->AddComponent<T>(m_EntityId);
 		}
 
 		template<typename T>
@@ -32,6 +31,11 @@ namespace Axel
 		inline T& GetComponent()
 		{
 			return m_Scene->GetComponent<T>(m_EntityId);
+		}
+
+		std::string GetName()
+		{
+			return GetComponent<NameComponent>().Name;
 		}
 
 		operator uint32_t() const { return m_EntityId; }

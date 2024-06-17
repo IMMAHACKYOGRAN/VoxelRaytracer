@@ -19,7 +19,7 @@ project "Axel-Editor"
         "../Axel-Core/vendor/spdlog/include",
         "../Axel-Core/vendor/GLFW/include",
         "../Axel-Core/vendor/imgui",
-        "../Axel-Core/vender/glm",
+        "../Axel-Core/vendor/glm",
     }
 
     links

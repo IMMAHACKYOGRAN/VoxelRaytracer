@@ -19,10 +19,6 @@ namespace Axel
 
 		m_ImGuiLayer = new ImGuiLayer;
 		PushOverlay(m_ImGuiLayer);
-
-		/*m_Scene = std::unique_ptr<Scene>(new Scene());
-		ent = m_Scene->CreateEntity();
-		ent.AddComponent<TransformComponent>();*/
 	}
 
 	Application::~Application()
