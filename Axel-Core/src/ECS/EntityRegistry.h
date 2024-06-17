@@ -32,10 +32,16 @@ namespace Axel
 			return m_Pool.at(entity);
 		}
 
+		void Remove(EntityId entity)
+		{
+			m_Pool.at(entity) = T();
+		}
+
 		T& Get(EntityId entity)
 		{
 			return m_Pool.at(entity);
 		}
+
 
 	private:
 		uint32_t m_Size;
@@ -77,11 +83,29 @@ namespace Axel
 			if (m_ComponentPools.find(componentid) == m_ComponentPools.end())
 				RegisterComponent<T>();
 
+			AX_ASSERT(!m_Signitures[entity].test(m_SignitureIndex[componentid]), "Entity already has that component");
+
 			ComponentPool<T>* componentpool = dynamic_cast<ComponentPool<T>*>(m_ComponentPools[componentid].get());
 
 			m_Signitures[entity].set(m_SignitureIndex[componentid], true);
+			m_ComponentToEntities[componentid].push_back(entity);
 			
-			return componentpool->Add(entity, component);;
+			return componentpool->Add(entity, component);
+		}
+
+		template<typename T>
+		void RemoveComponent(EntityId entity)
+		{
+			ComponentId componentid = typeid(T).hash_code();
+			
+			if (m_ComponentPools.find(componentid) == m_ComponentPools.end())
+				RegisterComponent<T>();
+
+			if (m_Signitures[entity].test(m_SignitureIndex[componentid]))
+			{
+				ComponentPool<T>* componentpool = dynamic_cast<ComponentPool<T>*>(m_ComponentPools[componentid].get());
+				componentpool->Remove(entity);
+			}
 		}
 
 		template<typename T>
@@ -103,17 +127,18 @@ namespace Axel
 			if (m_ComponentPools.find(componentid) == m_ComponentPools.end())
 				RegisterComponent<T>();
 
+			AX_ASSERT(m_Signitures[entity].test(m_SignitureIndex[componentid]), "Attempted to get non existant component");
+
 			ComponentPool<T>* componentpool = dynamic_cast<ComponentPool<T>*>(m_ComponentPools[componentid].get());
 
 			return componentpool->Get(entity);
 		}
 
-		template<typename... Ts>
-		std::vector<EntityId> GetView()
+		template<typename T>
+		std::vector<EntityId> GetEntitiesWith()
 		{
-			std::vector<EntityId> ents;
-
-
+			ComponentId componentid = typeid(T).hash_code();
+			return m_ComponentToEntities[componentid];
 		}
 
 	private:

@@ -36,9 +36,9 @@ namespace Axel
 		}
 
 		template<typename T>
-		std::vector<EntityId> GetEntitysWith()
+		std::vector<EntityId> GetEntitiesWith()
 		{
-
+			return m_Registry.GetEntitiesWith<T>();
 		}
 
 	private:

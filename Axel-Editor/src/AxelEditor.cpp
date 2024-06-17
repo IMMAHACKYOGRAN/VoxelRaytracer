@@ -6,7 +6,7 @@ public:
 	ExampleLayer()
 		: m_Camera(45.0f, 0.01f, 100.0f, Axel::Application::Get().GetWindow().GetWidth(), Axel::Application::Get().GetWindow().GetHeight())
 	{
-		m_Scene = std::unique_ptr<Axel::Scene>(new Axel::Scene);
+		m_Scene = std::shared_ptr<Axel::Scene>(new Axel::Scene);
 		m_NewEntity = m_Scene->CreateEntity();
 		Axel::TransformComponent& trans = m_NewEntity.AddComponent<Axel::TransformComponent>();
 	}
@@ -18,7 +18,11 @@ public:
 
 	void OnAttach()
 	{
-
+		Axel::FrameBufferSpecification fbSpec;
+		fbSpec.Attachments = { Axel::AttachmentFormat::RGBA, Axel::AttachmentFormat::RED_INTEGER, Axel::AttachmentFormat::DEPTH };
+		fbSpec.Width = 1280;
+		fbSpec.Height = 720;
+		m_FrameBuffer = Axel::FrameBuffer::Create(fbSpec);
 	}
 
 	void OnEvent(Axel::Event& e) override
@@ -35,8 +39,8 @@ public:
 
 		Axel::Renderer::BeginScene(m_Camera);
 
-		//for (auto entity : m_Scene->GetEntitiesWith<Axel::TransformComponent>())
-		Axel::Renderer::DrawCube(m_NewEntity.GetComponent<Axel::TransformComponent>());
+		for (const auto entity : m_Scene->GetEntitiesWith<Axel::TransformComponent>())
+			Axel::Renderer::DrawCube(m_Scene->GetComponent<Axel::TransformComponent>(entity));
 
 		Axel::Renderer::EndScene();
 	}
@@ -55,7 +59,8 @@ public:
 private:
 	Axel::EditorCamera m_Camera;
 
-	std::unique_ptr<Axel::Scene> m_Scene;
+	std::shared_ptr<Axel::Scene> m_Scene;
+	std::shared_ptr<Axel::FrameBuffer> m_FrameBuffer;
 	Axel::Entity m_NewEntity;
 	Axel::TransformComponent trans;
 
