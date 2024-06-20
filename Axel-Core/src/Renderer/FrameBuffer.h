@@ -40,6 +40,7 @@ namespace Axel
 	private:
 		uint32_t m_RendererID; 
 		FrameBufferSpecification m_Specification;
+		std::vector<AttachmentFormat> m_AttachmentFormats;
 		bool m_UseDepth = false;
 
 		std::vector<uint32_t> m_ColourAttachments;

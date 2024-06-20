@@ -7,12 +7,18 @@ namespace Axel
 {
 	Application* Application::s_Instance = nullptr;
 
-	Application::Application()
+	Application::Application(const ApplicationSpecification& spec)
+		: m_Spec(spec)
 	{
 		AX_ASSERT(!s_Instance, "Application already exists");
 		s_Instance = this;
 
-		m_Window = std::unique_ptr<Window>(new Window());
+		WindowSpecification wspec;
+		wspec.Name = spec.Name;
+		wspec.Width = spec.Width;
+		wspec.Height = spec.Height;
+
+		m_Window = std::unique_ptr<Window>(new Window(wspec));
 		m_Window->SetEventCallback(std::bind(&Application::OnEvent, this, std::placeholders::_1));
 
 		Renderer::Init();

@@ -17,29 +17,23 @@ namespace Axel
 		Entity CreateEntity(const std::string& name);
 		void DestroyEntity(Entity entity);
 
-		template<typename T>
-		T& AddComponent(EntityId entity)
-		{
-			return m_Registry.AddComponent<T>(entity);
-		}
+		void OnEditorStart();
+		void OnEditorUpdate(float dt);
+
+		void OnEditorPlayStart();
+		void OnEditorPlayUpdate(float dt);
 
 		template<typename T>
-		bool HasComponent(EntityId entity)
-		{
-			return m_Registry.HasComponent<T>(entity);
-		}
+		T& AddComponent(EntityId entity) { return m_Registry.AddComponent<T>(entity); }
 
 		template<typename T>
-		T& GetComponent(EntityId entity)
-		{
-			return m_Registry.GetComponent<T>(entity);
-		}
+		bool HasComponent(EntityId entity) { return m_Registry.HasComponent<T>(entity); }
 
 		template<typename T>
-		std::vector<EntityId> GetEntitiesWith()
-		{
-			return m_Registry.GetEntitiesWith<T>();
-		}
+		T& GetComponent(EntityId entity) { return m_Registry.GetComponent<T>(entity); }
+
+		template<typename T>
+		std::vector<EntityId> GetEntitiesWith()	{ return m_Registry.GetEntitiesWith<T>(); }
 
 	private:
 		EntityRegistry m_Registry{10};

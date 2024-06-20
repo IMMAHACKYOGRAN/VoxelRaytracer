@@ -7,9 +7,13 @@ namespace Axel
 	FrameBuffer::FrameBuffer(const FrameBufferSpecification& spec)
 		: m_Specification(spec)
 	{
-		for (const auto spec : m_Specification.Attachments)
-			if (spec == AttachmentFormat::DEPTH)
+		for (const auto format : m_Specification.Attachments)
+		{
+			if (format == AttachmentFormat::DEPTH)
 				m_UseDepth = true;
+			else
+				m_AttachmentFormats.push_back(format);
+		}
 
 		Resize(m_Specification.Width, m_Specification.Height);
 	}
@@ -42,15 +46,16 @@ namespace Axel
 		glCreateFramebuffers(1, &m_RendererID);
 		glBindFramebuffer(GL_FRAMEBUFFER, m_RendererID);
 
-		if (m_ColourAttachments.size())
+		if (m_AttachmentFormats.size())
 		{
+			m_ColourAttachments.resize(m_AttachmentFormats.size());
 			glCreateTextures(GL_TEXTURE_2D, m_ColourAttachments.size(), m_ColourAttachments.data());
 
 			for (size_t i = 0; i < m_ColourAttachments.size(); i++)
 			{
 				glBindTexture(GL_TEXTURE_2D, m_ColourAttachments[i]);
 
-				switch (m_Specification.Attachments[i])
+				switch (m_AttachmentFormats[i])
 				{
 				case AttachmentFormat::RGBA:
 					glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8, m_Specification.Width, m_Specification.Height, 0, GL_RGBA, GL_UNSIGNED_BYTE, nullptr);
@@ -111,18 +116,18 @@ namespace Axel
 	{
 		AX_ASSERT(attachmentIndex < m_ColourAttachments.size(), "Attachment out of range");
 
-		GLenum attchment = 0;
-		switch (m_Specification.Attachments[attachmentIndex])
+		GLenum attachment = 0;
+		switch (m_AttachmentFormats[attachmentIndex])
 		{
 		case AttachmentFormat::RGBA:
-			attchment = GL_RGBA8;
+			attachment = GL_RGBA8;
 			break;
 		case AttachmentFormat::RED_INTEGER:
-			attchment = GL_RED_INTEGER;
+			attachment = GL_RED_INTEGER;
 			break;
 		}
 
-		glClearTexImage(m_ColourAttachments[attachmentIndex], 0, attchment, GL_INT, &value);
+		glClearTexImage(m_ColourAttachments[attachmentIndex], 0, attachment, GL_INT, &value);
 	}
 
 	// MUST READ FROM THE "GL_RED_INTEGER" CHANNEL

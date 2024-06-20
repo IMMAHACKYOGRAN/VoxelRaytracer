@@ -11,8 +11,6 @@ namespace Axel
 		std::string Name = std::string();
 
 		NameComponent() = default;
-		NameComponent(const std::string& name)
-			: Name(name) {}
 
 	};
 
@@ -30,6 +28,23 @@ namespace Axel
 				 * glm::toMat4(glm::quat(Rotation))
 				 * glm::scale(glm::mat4(1.0f), Scale);
 		}
+	};
+
+	class ScriptableEntity
+	{
+	public:
+		ScriptableEntity() {}
+		virtual ~ScriptableEntity() {}
+
+		virtual void Start() {}
+		virtual void Update(float dt) {}
+	};
+
+	struct ScriptComponent
+	{
+		ScriptableEntity* Script = nullptr;
+
+		ScriptComponent() = default;
 	};
 
 	struct VoxelRendererComponent

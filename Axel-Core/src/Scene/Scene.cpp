@@ -32,4 +32,33 @@ namespace Axel
 
 		return e;
 	}
+
+	void Scene::OnEditorStart()
+	{
+	}
+
+	void Scene::OnEditorUpdate(float dt)
+	{
+		
+	}
+
+	void Scene::OnEditorPlayStart()
+	{
+		for (const auto e : m_Registry.GetEntitiesWith<ScriptComponent>())
+		{
+			const auto& s = m_Registry.GetComponent<ScriptComponent>(e).Script;
+			if (s != nullptr)
+				s->Start();
+		}
+	}
+
+	void Scene::OnEditorPlayUpdate(float dt)
+	{
+		for (const auto e : m_Registry.GetEntitiesWith<ScriptComponent>())
+		{
+			const auto& s = m_Registry.GetComponent<ScriptComponent>(e).Script;
+			if (s != nullptr)
+				s->Update(dt);
+		}
+	} 
 }

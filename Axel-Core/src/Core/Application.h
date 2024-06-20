@@ -13,10 +13,22 @@
 
 namespace Axel
 {
+	struct ApplicationSpecification
+	{
+		std::string Name;
+		uint32_t Width;
+		uint32_t Height;
+
+		ApplicationSpecification(const std::string& name = "Axel App", uint32_t width = 1280, uint32_t height = 720)
+			: Name(name), Width(width), Height(height)
+		{
+		}
+	};
+
 	class Application
 	{
 	public:
-		Application();
+		Application(const ApplicationSpecification& spec);
 		virtual ~Application();
 
 		void Run();
@@ -36,6 +48,7 @@ namespace Axel
 
 	private:
 		std::unique_ptr<Window> m_Window;
+		ApplicationSpecification m_Spec;
 		ImGuiLayer* m_ImGuiLayer;
 		bool m_Running = true;
 		bool m_Minimised = false;

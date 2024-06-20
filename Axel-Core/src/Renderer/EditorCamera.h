@@ -17,7 +17,7 @@ namespace Axel
 		void OnUpdate(float dt);
 		void OnEvent(Event& e);
 
-		bool OnResize(WindowResizeEvent& e);
+		void ResizeViewport(float width, float height);
 
 		void SetPosition(glm::vec3 pos) { m_Position = pos; }
 		glm::vec3 GetPosition() const { return m_Position; }
@@ -29,6 +29,8 @@ namespace Axel
 		glm::mat4 GetInverseViewMatrix() const { return m_InverseViewMatrix; }
 
 	private:
+		bool OnResize(WindowResizeEvent& e);
+
 		void RecalculateProjectionMatrix();
 		void RecalculateViewMatrix();
 

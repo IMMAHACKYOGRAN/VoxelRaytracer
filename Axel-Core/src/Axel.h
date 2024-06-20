@@ -7,5 +7,3 @@
 #include "Renderer/FrameBuffer.h"
 
 #include "ECS/Entity.h"
-
-#include "Core/EntryPoint.h"

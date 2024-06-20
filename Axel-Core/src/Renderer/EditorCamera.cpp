@@ -107,6 +107,18 @@ namespace Axel
 		dispatcher.Dispatch<WindowResizeEvent>(std::bind(&EditorCamera::OnResize, this, std::placeholders::_1));
 	}
 
+	void EditorCamera::ResizeViewport(float width, float height)
+	{
+		if (width == 0 || height == 0)
+			return;
+
+		m_ViewportWidth = width;
+		m_ViewportHeight = height;
+
+		RecalculateProjectionMatrix();
+		RecalculateViewMatrix();
+	}
+
 	bool EditorCamera::OnResize(WindowResizeEvent& e)
 	{
 		if (e.GetWidth() == m_ViewportWidth && e.GetHeight() == m_ViewportHeight)
@@ -123,6 +135,8 @@ namespace Axel
 
 		return false;
 	}
+
+	
 
 	void EditorCamera::RecalculateProjectionMatrix()
 	{
