@@ -36,17 +36,17 @@ namespace Axel
 		while (m_Running)
 		{
 			float time = (float)glfwGetTime();
-			float timeStep = time - m_LastFrameTime;
+			float deltaTime = time - m_LastFrameTime;
 			m_LastFrameTime = time;
 
 			if (!m_Minimised)
 			{
-				for (Layer* layer : m_LayerStack)
-					layer->OnUpdate(timeStep);
+				for (Layer* layer : m_LayerStack.GetLayers())
+					layer->OnUpdate(deltaTime);
 			}
 
 			m_ImGuiLayer->Begin();
-			for (Layer* layer : m_LayerStack)
+			for (Layer* layer : m_LayerStack.GetLayers())
 				layer->OnImGuiRender();
 			m_ImGuiLayer->End();
 
@@ -65,9 +65,9 @@ namespace Axel
 		dispatcher.Dispatch<WindowCloseEvent>(std::bind(&Application::OnWindowClose, this, std::placeholders::_1));
 		dispatcher.Dispatch<WindowResizeEvent>(std::bind(&Application::OnWindowResize, this, std::placeholders::_1));
 
-		for (auto it = m_LayerStack.end(); it != m_LayerStack.begin(); )
+		for (Layer* layer : m_LayerStack.GetLayers())
 		{
-			(*--it)->OnEvent(e);
+			layer->OnEvent(e);
 			if (e.Handled)
 				break;
 		}

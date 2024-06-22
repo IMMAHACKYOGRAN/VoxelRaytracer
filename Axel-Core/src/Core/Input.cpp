@@ -18,7 +18,7 @@ namespace Axel
 		return glfwGetMouseButton(window, (int)button) == GLFW_PRESS;
 	}
 
-	glm::vec2 Input::GetMousePosition()
+	const glm::vec2 Input::GetMousePosition()
 	{
 		GLFWwindow* window = Application::Get().GetWindow().GetNativeWindow();
 		double x, y;

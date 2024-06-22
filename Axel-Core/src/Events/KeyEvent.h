@@ -9,7 +9,7 @@ namespace Axel {
 	public:
 		inline int GetKeyCode() const { return m_KeyCode; };
 
-		EVENT_CLASS_CATEGORY(EventCategoryKeyboard | EventCategoryInput)
+		virtual int GetCategoryFlags() const override { return EventCategoryKeyboard | EventCategoryInput; }
 	protected:
 		KeyEvent(int keycode)
 			: m_KeyCode(keycode) {}
@@ -25,7 +25,8 @@ namespace Axel {
 
 		inline int GetRepeatCount() const { return m_RepeatCount; };
 
-		EVENT_CLASS_TYPE(KeyPressed)
+		static EventType GetStaticType() { return EventType::KeyPressed; }
+		virtual EventType GetEventType() const override { return GetStaticType(); }
 	private:
 		int m_RepeatCount;
 	};
@@ -36,7 +37,8 @@ namespace Axel {
 		KeyReleasedEvent(int keycode)
 			: KeyEvent(keycode) {}
 
-		EVENT_CLASS_TYPE(KeyReleased)
+		static EventType GetStaticType() { return EventType::KeyReleased; }
+		virtual EventType GetEventType() const override { return GetStaticType(); }
 	};
 
 	class KeyTypedEvent : public KeyEvent
@@ -45,7 +47,8 @@ namespace Axel {
 		KeyTypedEvent(int keycode)
 			: KeyEvent(keycode) {}
 
-		EVENT_CLASS_TYPE(KeyTyped)
+		static EventType GetStaticType() { return EventType::KeyTyped; }
+		virtual EventType GetEventType() const override { return GetStaticType(); }
 	};
 
 }

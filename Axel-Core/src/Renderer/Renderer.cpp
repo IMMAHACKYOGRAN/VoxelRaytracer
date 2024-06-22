@@ -75,7 +75,7 @@ namespace Axel
 	{
 	}
 
-	void Renderer::BeginScene(const EditorCamera& camera)
+	void Renderer::BeginScene(const OrbitalCamera& camera)
 	{
 		s_Data.View = camera.GetViewMatrix();
 		s_Data.Projection = camera.GetProjectionMatrix();

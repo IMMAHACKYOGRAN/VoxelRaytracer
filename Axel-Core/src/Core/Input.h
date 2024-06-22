@@ -12,7 +12,7 @@ namespace Axel
 		static bool IsKeyDown(KeyCode key);
 
 		static bool IsMouseButtonDown(MouseButton button);
-		static glm::vec2 GetMousePosition();
+		static const glm::vec2 GetMousePosition();
 
 		static void SetCursorMode(CursorMode mode);
 	};

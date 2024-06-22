@@ -1,5 +1,4 @@
 #pragma once
-
 #include <Axel.h>
 
 class EditorLayer : public Axel::Layer
@@ -15,7 +14,7 @@ public:
 	virtual void OnImGuiRender() override;
 
 private:
-	Axel::EditorCamera m_Camera;
+	Axel::OrbitalCamera m_Camera;
 
 	std::shared_ptr<Axel::Scene> m_Scene;
 	std::shared_ptr<Axel::FrameBuffer> m_FrameBuffer;
@@ -25,7 +24,7 @@ private:
 
 	glm::vec2 m_ViewportBounds[2];
 	glm::vec2 m_ViewportSize;
-	bool m_ViewportHovered = false;
+
 	bool m_ViewportFocused = false;
 
 	float m_Dt = 0; //TODO: remove

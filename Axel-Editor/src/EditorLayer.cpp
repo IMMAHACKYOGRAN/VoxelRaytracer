@@ -3,7 +3,7 @@
 #include <gtc/type_ptr.hpp>
 
 EditorLayer::EditorLayer()
-	: m_Camera(45.0f, 0.01f, 100.0f, Axel::Application::Get().GetWindow().GetWidth(), Axel::Application::Get().GetWindow().GetHeight())
+	: m_Camera(30.0f, 1.7f, 0.01f, 100.0f)
 {
     ImGuiIO& io = ImGui::GetIO();
     m_Font = io.Fonts->AddFontFromFileTTF("res/assets/fonts/Roboto-Regular.ttf", 16.0f, NULL, io.Fonts->GetGlyphRangesDefault());
@@ -26,13 +26,16 @@ void EditorLayer::OnAttach()
 
 void EditorLayer::OnEvent(Axel::Event& e)
 {
-	m_Camera.OnEvent(e);
+    if(m_ViewportFocused)
+	    m_Camera.OnEvent(e);
 }
 
 void EditorLayer::OnUpdate(float dt)
 {
 	m_Dt = dt;
-	m_Camera.OnUpdate(dt);
+    
+    //if(m_ViewportFocused)
+    m_Camera.OnUpdate(dt);
 
     m_Scene->OnEditorPlayUpdate(dt); // TEMP
 
@@ -112,9 +115,8 @@ void EditorLayer::OnImGuiRender()
     m_ViewportBounds[1] = { max.x + offset.x, max.y + offset.y };
 
     m_ViewportFocused = ImGui::IsWindowFocused();
-    m_ViewportHovered = ImGui::IsWindowHovered();
 
-    //Axel::Application::Get().GetImGuiLayer()->BlockEvents(!m_ViewportHovered);
+    Axel::Application::Get().GetUILayer()->BlockImGuiLayerEvents(true);
 
     ImVec2 viewportPanelSize = ImGui::GetContentRegionAvail();
 

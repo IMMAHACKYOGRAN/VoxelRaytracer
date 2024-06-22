@@ -2,7 +2,7 @@
 
 #include "Renderer/VertexArray.h"
 #include "Renderer/Shader.h"
-#include "EditorCamera.h"
+#include "OrbitalCamera.h"
 #include "ECS/Components.h"
 
 namespace Axel
@@ -13,7 +13,7 @@ namespace Axel
 		static void Init();
 		static void Shutdown();
 
-		static void BeginScene(const EditorCamera& camera);
+		static void BeginScene(const OrbitalCamera& camera);
 		static void EndScene();
 
 		static void Clear(const glm::vec4& colour);

@@ -13,8 +13,10 @@ namespace Axel {
 		inline float GetX() const { return m_MouseX; };
 		inline float GetY() const { return m_MouseY; };
 
-		EVENT_CLASS_TYPE(MouseMoved)
-		EVENT_CLASS_CATEGORY(EventCategoryMouse | EventCategoryInput)
+		static EventType GetStaticType() { return EventType::MouseMoved; }
+		virtual EventType GetEventType() const override { return GetStaticType(); }
+
+		virtual int GetCategoryFlags() const override { return EventCategoryMouse | EventCategoryInput; }
 
 	private:
 		float m_MouseX;
@@ -30,8 +32,10 @@ namespace Axel {
 		inline float GetXOffset() const { return m_OffsetX; };
 		inline float GetYOffset() const { return m_OffsetY; };
 
-		EVENT_CLASS_TYPE(MouseScrolled)
-		EVENT_CLASS_CATEGORY(EventCategoryMouse | EventCategoryInput)
+		static EventType GetStaticType() { return EventType::MouseScrolled; }
+		virtual EventType GetEventType() const override { return GetStaticType(); }
+
+		virtual int GetCategoryFlags() const override { return EventCategoryMouse | EventCategoryInput; }
 
 	private:
 		float m_OffsetX;
@@ -42,7 +46,7 @@ namespace Axel {
 	{
 	public:
 		inline int GetMouseButton() const { return m_Button; };
-		EVENT_CLASS_CATEGORY(EventCategoryMouse | EventCategoryInput)
+		virtual int GetCategoryFlags() const override { return EventCategoryMouse | EventCategoryInput; }
 	protected:
 		MouseButtonEvent(int button)
 			: m_Button(button) {}
@@ -56,7 +60,8 @@ namespace Axel {
 		MouseButtonPressedEvent(int button)
 			: MouseButtonEvent(button) {}
 
-		EVENT_CLASS_TYPE(MouseButtonPressed)
+		static EventType GetStaticType() { return EventType::MouseButtonPressed; }
+		virtual EventType GetEventType() const override { return GetStaticType(); }
 	};
 
 	class MouseButtonReleasedEvent : public MouseButtonEvent
@@ -65,7 +70,8 @@ namespace Axel {
 		MouseButtonReleasedEvent(int button)
 			: MouseButtonEvent(button) {}
 
-		EVENT_CLASS_TYPE(MouseButtonReleased)
+		static EventType GetStaticType() { return EventType::MouseButtonReleased; }
+		virtual EventType GetEventType() const override { return GetStaticType(); }
 	};
 
 }

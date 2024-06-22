@@ -1,6 +1,6 @@
 #include "pch.h"
 
-#include "EditorCamera.h"
+#include "EditorCameraOld.h"
 
 #include <gtc/matrix_transform.hpp>
 #include <gtc/quaternion.hpp>
@@ -10,11 +10,9 @@
 
 namespace Axel
 {
-	EditorCamera::EditorCamera(float verticalFOV, float nearClip, float farClip, float vpWidth, float vpHeight)
-		//TODO: Remove the need for viewport w&h to be set manualy.
-		: m_VerticalFOV(verticalFOV), m_NearClip(nearClip), m_FarClip(farClip), m_ViewportWidth(vpWidth), m_ViewportHeight(vpHeight)
+	EditorCamera::EditorCamera(float verticalFOV, float aspectRatio, float nearClip, float farClip)
+		: m_VerticalFOV(verticalFOV), m_AspectRatio(aspectRatio), m_NearClip(nearClip), m_FarClip(farClip)
 	{
-		m_ForwardDirection = glm::vec3(0, 0, -1);
 		RecalculateProjectionMatrix();
 		RecalculateViewMatrix();
 	}
@@ -36,12 +34,6 @@ namespace Axel
 
 		float speed = 1.0f;
 		float sensitivity = 0.002f;
-
-		if (Input::IsKeyDown(Key::R))
-			m_ShouldUpdate = !m_ShouldUpdate;
-
-		if (!m_ShouldUpdate)
-			return;
 
 		if (Input::IsMouseButtonDown(MouseButton::Left))
 		{
@@ -112,8 +104,7 @@ namespace Axel
 		if (width == 0 || height == 0)
 			return;
 
-		m_ViewportWidth = width;
-		m_ViewportHeight = height;
+		m_AspectRatio = width / height;
 
 		RecalculateProjectionMatrix();
 		RecalculateViewMatrix();
@@ -121,14 +112,10 @@ namespace Axel
 
 	bool EditorCamera::OnResize(WindowResizeEvent& e)
 	{
-		if (e.GetWidth() == m_ViewportWidth && e.GetHeight() == m_ViewportHeight)
-			return false;
-
 		if (e.GetWidth() == 0 || e.GetHeight() == 0)
 			return false;
 
-		m_ViewportWidth = e.GetWidth();
-		m_ViewportHeight = e.GetHeight();
+		m_AspectRatio = e.GetWidth() / e.GetHeight();
 
 		RecalculateProjectionMatrix();
 		RecalculateViewMatrix();
@@ -136,11 +123,9 @@ namespace Axel
 		return false;
 	}
 
-	
-
 	void EditorCamera::RecalculateProjectionMatrix()
 	{
-		m_ProjectionMatrix = glm::perspectiveFov(glm::radians(m_VerticalFOV), (float)m_ViewportWidth, (float)m_ViewportHeight, m_NearClip, m_FarClip);
+		m_ProjectionMatrix = glm::perspective(glm::radians(m_VerticalFOV), m_AspectRatio, m_NearClip, m_FarClip);
 		m_InverseProjectionMatrix = glm::inverse(m_ProjectionMatrix);
 	}
 

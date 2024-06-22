@@ -11,7 +11,7 @@ namespace Axel
 	class EditorCamera
 	{
 	public:
-		EditorCamera(float verticalFOV, float nearClip, float farClip, float vpWidth, float vpHeight);
+		EditorCamera(float verticalFOV, float aspectRatio, float nearClip, float farClip);
 		~EditorCamera();
 
 		void OnUpdate(float dt);
@@ -36,7 +36,7 @@ namespace Axel
 
 	private:
 		glm::vec3 m_Position{ 0.0f };
-		glm::vec3 m_ForwardDirection{ 0.0f };
+		glm::vec3 m_ForwardDirection{ 0, 0, -1 };
 
 		glm::mat4 m_ProjectionMatrix{ 1.0f };
 		glm::mat4 m_InverseProjectionMatrix{ 1.0f };
@@ -46,12 +46,8 @@ namespace Axel
 		float m_VerticalFOV = 45.0f;
 		float m_NearClip = 0.1f;
 		float m_FarClip = 100.0f;
-
-		uint32_t m_ViewportWidth = 0;
-		uint32_t m_ViewportHeight = 0;
+		float m_AspectRatio = 16.0/9.0f;
 
 		glm::vec2 m_LastMousePosition{ 0.0f };
-
-		bool m_ShouldUpdate = true;
 	};
 }

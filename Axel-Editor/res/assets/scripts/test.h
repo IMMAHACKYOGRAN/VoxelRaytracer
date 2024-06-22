@@ -11,6 +11,5 @@ class test : public ScriptableEntity
 
 	virtual void Update(float dt) override
 	{
-		AX_INFO("Hello from a script");
 	}
 };
