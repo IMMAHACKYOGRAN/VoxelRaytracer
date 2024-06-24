@@ -1,5 +1,6 @@
 #pragma once
 #include <ECS/EntityRegistry.h>
+#include "Renderer/Renderer.h"
 
 namespace Axel
 {
@@ -17,8 +18,9 @@ namespace Axel
 		Entity CreateEntity(const std::string& name);
 		void DestroyEntity(Entity entity);
 
-		void OnEditorStart();
-		void OnEditorUpdate(float dt);
+		void SetMainCameraEntity(EntityId entity) { m_MainCameraEntity = entity; }
+
+		void OnEditorUpdate(float dt, const OrbitalCamera& camera);
 
 		void OnEditorPlayStart();
 		void OnEditorPlayUpdate(float dt);
@@ -38,7 +40,6 @@ namespace Axel
 	private:
 		EntityRegistry m_Registry{10};
 
-		bool m_IsRunning = false;
-		bool m_IsPaused = false;
+		EntityId m_MainCameraEntity;
 	};
 }

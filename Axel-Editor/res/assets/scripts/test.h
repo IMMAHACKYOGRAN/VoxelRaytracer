@@ -1,6 +1,5 @@
 #pragma once
 #include <Axel.h>
-
 using namespace Axel;
 
 class test : public ScriptableEntity
@@ -11,5 +10,6 @@ class test : public ScriptableEntity
 
 	virtual void Update(float dt) override
 	{
+		AX_INFO("script");
 	}
 };

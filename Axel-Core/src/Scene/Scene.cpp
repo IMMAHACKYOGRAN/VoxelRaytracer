@@ -17,6 +17,8 @@ namespace Axel
 		EntityId id = m_Registry.CreateEntity();
 		Entity e{ this, id };
 
+		e.AddComponent<TransformComponent>();
+
 		std::string name = "Entity " + std::to_string(id);
 		auto& nc = e.AddComponent<NameComponent>();
 		nc.Name = name;
@@ -27,19 +29,21 @@ namespace Axel
 	Entity Scene::CreateEntity(const std::string& name)
 	{
 		Entity e{ this, m_Registry.CreateEntity() };
+		e.AddComponent<TransformComponent>();
 		auto& nc = e.AddComponent<NameComponent>();
 		nc.Name = name;
 
 		return e;
 	}
 
-	void Scene::OnEditorStart()
+	void Scene::OnEditorUpdate(float dt, const OrbitalCamera& camera)
 	{
-	}
+		Renderer::BeginScene(camera);
 
-	void Scene::OnEditorUpdate(float dt)
-	{
-		
+		for (const auto entity : GetEntitiesWith<TransformComponent>())
+			Renderer::DrawCube(GetComponent<TransformComponent>(entity));
+
+		Renderer::EndScene();
 	}
 
 	void Scene::OnEditorPlayStart()
@@ -60,5 +64,18 @@ namespace Axel
 			if (s != nullptr)
 				s->Update(dt);
 		}
-	} 
+
+		const auto& cam = m_Registry.GetComponent<CameraComponent>(m_MainCameraEntity).Cam;
+		const auto& transform = m_Registry.GetComponent<TransformComponent>(m_MainCameraEntity);
+		
+		if (cam)
+		{
+			Renderer::BeginScene(*cam, transform.GetTransform());
+
+			for (const auto entity : GetEntitiesWith<TransformComponent>())
+				Renderer::DrawCube(GetComponent<TransformComponent>(entity));
+
+			Renderer::EndScene();
+		}
+	}
 }

@@ -14,7 +14,13 @@ public:
 	virtual void OnImGuiRender() override;
 
 private:
-	Axel::OrbitalCamera m_Camera;
+	enum class EditorState
+	{
+		None = 0,
+		Editing, Running,
+	} m_EditorState = EditorState::Running;
+
+	Axel::OrbitalCamera m_EditorCamera;
 
 	std::shared_ptr<Axel::Scene> m_Scene;
 	std::shared_ptr<Axel::FrameBuffer> m_FrameBuffer;
@@ -26,6 +32,7 @@ private:
 	glm::vec2 m_ViewportSize;
 
 	bool m_ViewportFocused = false;
+	bool m_ViewportHovered = false;
 
 	float m_Dt = 0; //TODO: remove
 };

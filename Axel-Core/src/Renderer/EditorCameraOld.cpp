@@ -3,7 +3,6 @@
 #include "EditorCameraOld.h"
 
 #include <gtc/matrix_transform.hpp>
-#include <gtc/quaternion.hpp>
 #include <gtx/quaternion.hpp>
 
 #include "Core/Input.h"

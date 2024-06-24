@@ -83,6 +83,14 @@ namespace Axel
 		s_Data.RenderStats.DrawCalls = 0;
 	}
 
+	void Renderer::BeginScene(const Camera& camera, const glm::mat4& transform)
+	{
+		s_Data.View = camera.GetProjectionMatrix() * glm::inverse(transform);
+		s_Data.Projection = camera.GetProjectionMatrix();
+
+		s_Data.RenderStats.DrawCalls = 0;
+	}
+
 	void Renderer::EndScene()
 	{
 

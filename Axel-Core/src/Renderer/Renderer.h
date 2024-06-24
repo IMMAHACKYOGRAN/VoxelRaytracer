@@ -14,6 +14,7 @@ namespace Axel
 		static void Shutdown();
 
 		static void BeginScene(const OrbitalCamera& camera);
+		static void BeginScene(const Camera& camera, const glm::mat4& transfrom);
 		static void EndScene();
 
 		static void Clear(const glm::vec4& colour);

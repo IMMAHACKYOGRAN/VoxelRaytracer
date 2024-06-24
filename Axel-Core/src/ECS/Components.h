@@ -1,8 +1,8 @@
 #pragma once
-#include <variant>
 #include <glm.hpp>
 #include <gtc/matrix_transform.hpp>
 #include <gtx/quaternion.hpp>
+#include "Renderer/Camera.h"
 
 namespace Axel
 {
@@ -45,6 +45,13 @@ namespace Axel
 		ScriptableEntity* Script = nullptr;
 
 		ScriptComponent() = default;
+	};
+	
+	struct CameraComponent
+	{
+		Camera* Cam = nullptr;
+
+		CameraComponent() = default;
 	};
 
 	struct VoxelRendererComponent

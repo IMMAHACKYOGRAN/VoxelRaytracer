@@ -3,16 +3,18 @@
 #include <gtc/type_ptr.hpp>
 
 EditorLayer::EditorLayer()
-	: m_Camera(30.0f, 1.7f, 0.01f, 100.0f)
+	: m_EditorCamera(30.0f, 1.7f, 0.01f, 100.0f)
 {
     ImGuiIO& io = ImGui::GetIO();
     m_Font = io.Fonts->AddFontFromFileTTF("res/assets/fonts/Roboto-Regular.ttf", 16.0f, NULL, io.Fonts->GetGlyphRangesDefault());
 
 	m_Scene = std::shared_ptr<Axel::Scene>(new Axel::Scene);
 	m_NewEntity = m_Scene->CreateEntity();
+    auto& camera = m_NewEntity.AddComponent<Axel::CameraComponent>();
+    camera.Cam = new Camera();
+    m_Scene->SetMainCameraEntity((EntityId)m_NewEntity);
     auto& sc = m_NewEntity.AddComponent<Axel::ScriptComponent>();
     sc.Script = new test;
-	m_NewEntity.AddComponent<Axel::TransformComponent>();
 }
 
 void EditorLayer::OnAttach()
@@ -26,28 +28,40 @@ void EditorLayer::OnAttach()
 
 void EditorLayer::OnEvent(Axel::Event& e)
 {
-    if(m_ViewportFocused)
-	    m_Camera.OnEvent(e);
+    if(m_ViewportHovered && m_EditorState == EditorState::Editing)
+        m_EditorCamera.OnEvent(e);
 }
 
 void EditorLayer::OnUpdate(float dt)
 {
 	m_Dt = dt;
+
+    m_FrameBuffer->Bind();
+    Axel::Renderer::Clear({ 0.1f, 0.1f, 0.1f, 1.0f });
     
-    //if(m_ViewportFocused)
-    m_Camera.OnUpdate(dt);
+    switch (m_EditorState)
+    {
+        case EditorState::None:
+        {
+            AX_ERROR("How does this happen?");
+            break;
+        }
+        case EditorState::Editing:
+        {
+            if (m_ViewportFocused)
+                m_EditorCamera.OnUpdate(dt);
 
-    m_Scene->OnEditorPlayUpdate(dt); // TEMP
+            m_Scene->OnEditorUpdate(dt, m_EditorCamera);
+            break;
 
-	m_FrameBuffer->Bind();
-	Axel::Renderer::Clear({ 0.1f, 0.1f, 0.1f, 1.0f });
+        }
+        case EditorState::Running:
+        {
+            m_Scene->OnEditorPlayUpdate(dt);
+            break;
+        }
+    }
 
-	Axel::Renderer::BeginScene(m_Camera);
-
-	for (const auto entity : m_Scene->GetEntitiesWith<Axel::TransformComponent>())
-		Axel::Renderer::DrawCube(m_Scene->GetComponent<Axel::TransformComponent>(entity));
-
-	Axel::Renderer::EndScene();
 	m_FrameBuffer->Unbind();
 }
 
@@ -115,8 +129,7 @@ void EditorLayer::OnImGuiRender()
     m_ViewportBounds[1] = { max.x + offset.x, max.y + offset.y };
 
     m_ViewportFocused = ImGui::IsWindowFocused();
-
-    Axel::Application::Get().GetUILayer()->BlockImGuiLayerEvents(true);
+    m_ViewportHovered = ImGui::IsWindowHovered();
 
     ImVec2 viewportPanelSize = ImGui::GetContentRegionAvail();
 
@@ -125,7 +138,7 @@ void EditorLayer::OnImGuiRender()
         m_ViewportSize = { viewportPanelSize.x, viewportPanelSize.y };
         m_FrameBuffer->Resize(m_ViewportSize.x, m_ViewportSize.y);
         //Axel::Renderer::SetViewport(0, 0, (uint32_t)viewportPanelSize.x, (uint32_t)viewportPanelSize.y);
-        m_Camera.ResizeViewport(m_ViewportSize.x, m_ViewportSize.y);
+        m_EditorCamera.ResizeViewport(m_ViewportSize.x, m_ViewportSize.y);
     }
 
     uint32_t textureID = m_FrameBuffer->GetAttachmentRendererID(0);
