@@ -35,6 +35,15 @@ namespace Axel
 		T& GetComponent(EntityId entity) { return m_Registry.GetComponent<T>(entity); }
 
 		template<typename T>
+		void RemoveComponent(EntityId entity) 
+		{
+			if (typeid(T) == typeid(NameComponent) || typeid(T) == typeid(TransformComponent))
+				return;
+
+			m_Registry.RemoveComponent<T>(entity); 
+		}
+
+		template<typename T>
 		std::vector<EntityId> GetEntitiesWith()	{ return m_Registry.GetEntitiesWith<T>(); }
 
 	private:

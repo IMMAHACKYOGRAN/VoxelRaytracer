@@ -11,6 +11,13 @@ namespace Axel
 		~Camera();
 
 		void ResizeViewport(float width, float height);
+		
+		void SetFOV(float fov) { m_VerticalFov = fov; }
+		float GetFOV() const { return m_VerticalFov; }
+		void SetNearClip(float dist) { m_NearClip = dist; }
+		float GetNearClip() const { return m_NearClip; }
+		void SetFarClip(float dist) { m_FarClip = dist; }
+		float GetFarClip() const { return m_FarClip; }
 
 		const glm::mat4& GetProjectionMatrix() const { return m_ProjectionMatrix; }
 

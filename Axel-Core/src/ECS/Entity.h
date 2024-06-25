@@ -33,23 +33,18 @@ namespace Axel
 			return m_Scene->GetComponent<T>(m_EntityId);
 		}
 
+		template<typename T>
+		inline void RemoveComponent()
+		{
+			m_Scene->RemoveComponent<T>(m_EntityId);
+		}
+
 		std::string GetName()
 		{
 			return GetComponent<NameComponent>().Name;
 		}
 
 		operator uint32_t() const { return m_EntityId; }
-
-		bool operator == (const Entity& other) const
-		{
-			return m_EntityId == other.m_EntityId && m_Scene == other.m_Scene;
-		}
-
-		bool operator != (const Entity& other) const
-		{
-			return !(*this == other);
-		}
-
 	private:
 		EntityId m_EntityId;
 		Scene* m_Scene = nullptr;

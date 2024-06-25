@@ -166,9 +166,6 @@ void EditorLayer::OnImGuiRender()
 	ImGui::Text("FPS: %d", (int)(1.0f / m_Dt));
 	ImGui::Text("Draw Calls: %d", Axel::Renderer::GetStats().DrawCalls);
     ImGui::Separator();
-    ImGui::Text("Entity");
-    ImGui::Separator();
-    ImGui::DragFloat3("Position", glm::value_ptr(m_NewEntity.GetComponent<Axel::TransformComponent>().Translation), 0.01f);
     if (ImGui::Button("Set"))
         m_EditorCamera.SetFocalPoint(m_NewEntity.GetComponent<Axel::TransformComponent>().Translation);
     if (ImGui::Button("Reset"))

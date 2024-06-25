@@ -10,6 +10,6 @@ class test : public ScriptableEntity
 
 	virtual void Update(float dt) override
 	{
-		AX_INFO("script");
+		//AX_INFO("script");
 	}
 };

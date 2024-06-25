@@ -14,9 +14,12 @@ public:
 
 private:
 	void DrawEntity(Axel::EntityId entity);
-	void DrawComponents();
+	void DrawAllComponents();
+	template<typename T>
+	void DrawComponent(const std::string& componentName, void(*func)(T&));
 	
 private:
+	bool m_FocusRename = false;
 	std::shared_ptr<Axel::Scene> m_CurrentScene;
 
 	bool m_IsEntitySelected = false;

@@ -101,9 +101,7 @@ namespace Axel
 		s_Data.VoxelShader->Bind();
 		s_Data.VoxelShader->UploadUniformMat4("u_View", s_Data.View);
 		s_Data.VoxelShader->UploadUniformMat4("u_Projection", s_Data.Projection);
-
-		glm::mat4 modelmat = glm::translate(glm::mat4(1.0f), transform.Translation) * glm::scale(glm::mat4(1.0f), transform.Scale);
-		s_Data.VoxelShader->UploadUniformMat4("u_Model", modelmat);
+		s_Data.VoxelShader->UploadUniformMat4("u_Model", transform.GetTransform());
 		
 		DrawIndexed();
 	}
