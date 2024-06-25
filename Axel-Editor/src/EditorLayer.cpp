@@ -8,12 +8,14 @@ EditorLayer::EditorLayer()
     ImGuiIO& io = ImGui::GetIO();
     m_Font = io.Fonts->AddFontFromFileTTF("res/assets/fonts/Roboto-Regular.ttf", 16.0f, NULL, io.Fonts->GetGlyphRangesDefault());
 
-	m_Scene = std::shared_ptr<Axel::Scene>(new Axel::Scene);
-	m_NewEntity = m_Scene->CreateEntity();
+    m_CurrentScene = std::shared_ptr<Axel::Scene>(new Axel::Scene);
+    m_PropertiesScenePanel.SetScene(m_CurrentScene);
+
+	m_NewEntity = m_CurrentScene->CreateEntity();
 
     auto& camera = m_NewEntity.AddComponent<Axel::CameraComponent>();
     camera.Cam = new Camera();
-    m_Scene->SetMainCameraEntity((EntityId)m_NewEntity);
+    m_CurrentScene->SetMainCameraEntity((EntityId)m_NewEntity);
 
     auto& sc = m_NewEntity.AddComponent<Axel::ScriptComponent>();
     sc.Script = new test;
@@ -60,13 +62,13 @@ void EditorLayer::OnUpdate(float dt)
             if (m_ViewportFocused)
                 m_EditorCamera.OnUpdate(dt);
 
-            m_Scene->OnEditorUpdate(dt, m_EditorCamera);
+            m_CurrentScene->OnEditorUpdate(dt, m_EditorCamera);
             break;
 
         }
         case EditorState::Running:
         {
-            m_Scene->OnEditorPlayUpdate(dt);
+            m_CurrentScene->OnEditorPlayUpdate(dt);
             break;
         }
     }
@@ -172,6 +174,8 @@ void EditorLayer::OnImGuiRender()
     if (ImGui::Button("Reset"))
         m_EditorCamera.SetFocalPoint({0.0f, 0.0f, 0.0f});
 	ImGui::End(); // Debug
+
+    m_PropertiesScenePanel.Draw();
 
     ImGui::End(); // Docspace
     ImGui::PopFont();

@@ -1,5 +1,6 @@
 #pragma once
 #include <Axel.h>
+#include "UIPanels/PropertiesScenePanel.h"
 
 class EditorLayer : public Axel::Layer
 {
@@ -27,9 +28,12 @@ private:
 
 	Axel::OrbitalCamera m_EditorCamera;
 
-	std::shared_ptr<Axel::Scene> m_Scene;
+	std::shared_ptr<Axel::Scene> m_CurrentScene;
 	std::shared_ptr<Axel::FrameBuffer> m_FrameBuffer;
 	Axel::Entity m_NewEntity;
+	Axel::EntityId m_SelectedEntity;
+
+	PropertiesScenePanel m_PropertiesScenePanel;
 
 	ImFont* m_Font;
 
