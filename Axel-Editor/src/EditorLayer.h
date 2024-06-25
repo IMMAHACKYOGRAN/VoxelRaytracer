@@ -13,12 +13,17 @@ public:
 	
 	virtual void OnImGuiRender() override;
 
+	void DrawUIButtons();
+
 private:
+	std::shared_ptr<Axel::Texture2D> m_PlayButtonImage;
+	std::shared_ptr<Axel::Texture2D> m_StopButtonImage;
+
 	enum class EditorState
 	{
 		None = 0,
 		Editing, Running,
-	} m_EditorState = EditorState::Running;
+	} m_EditorState = EditorState::Editing;
 
 	Axel::OrbitalCamera m_EditorCamera;
 

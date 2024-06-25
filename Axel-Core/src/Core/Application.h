@@ -6,6 +6,7 @@
 
 #include "Core/LayerStack.h"
 #include "Core/Window.h"
+#include "Renderer/Texture.h"
 
 #include "ImGui/ImGuiLayer.h"
 
@@ -38,6 +39,8 @@ namespace Axel
 
 		void PushLayer(Layer* layer);
 		void PushOverlay(Layer* overlay);
+
+		void SetIcon(uint8_t* pixels, int width, int height);
 
 		inline static Application& Get() { return *s_Instance; }
 		inline Window& GetWindow() { return *m_Window; }

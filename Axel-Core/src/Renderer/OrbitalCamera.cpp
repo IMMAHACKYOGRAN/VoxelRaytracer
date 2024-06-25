@@ -7,8 +7,8 @@ namespace Axel
 	OrbitalCamera::OrbitalCamera(float verticalFov, float aspectRatio, float nearClip, float farClip)
 		: m_VerticalFov(verticalFov), m_AspectRatio(aspectRatio), m_NearClip(nearClip), m_FarClip(farClip)
 	{
-		RecalculateViewMatrix();
 		RecalculateProjectionMatrix();
+		RecalculateViewMatrix();
 	}
 
 	OrbitalCamera::~OrbitalCamera()
@@ -22,8 +22,8 @@ namespace Axel
 
 	void OrbitalCamera::RecalculateViewMatrix()
 	{
-		m_Position = m_FocalPoint - GetForwardDirection() * m_Distance;
 		m_Orientation = glm::quat(glm::vec3(-m_Pitch, -m_Yaw, 0.0f));
+		m_Position = m_FocalPoint - GetForwardDirection() * m_Distance;
 
 		m_ViewMatrix = glm::inverse(glm::translate(glm::mat4(1.0f), m_Position) * glm::toMat4(m_Orientation));
 	}
@@ -75,6 +75,13 @@ namespace Axel
 	{
 		m_AspectRatio = width / height;
 		RecalculateProjectionMatrix();
+	}
+
+	void OrbitalCamera::SetFocalPoint(const glm::vec3& point)
+	{
+		m_FocalPoint = point;
+		m_Distance = 10.0f;
+		RecalculateViewMatrix();
 	}
 
 	const glm::vec3 OrbitalCamera::GetUpDirection() const

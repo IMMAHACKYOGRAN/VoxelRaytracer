@@ -85,6 +85,11 @@ namespace Axel
 		overlay->OnAttach();
 	}
 
+	void Application::SetIcon(uint8_t* pixels, int width, int height)
+	{
+		m_Window->SetIcon(width, height, pixels);
+	}
+
 	bool Application::OnWindowClose(WindowCloseEvent& e)
 	{
 		m_Running = false;

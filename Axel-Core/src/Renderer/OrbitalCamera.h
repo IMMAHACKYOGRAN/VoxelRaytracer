@@ -19,6 +19,8 @@ namespace Axel
 
 		void ResizeViewport(float width, float height);
 
+		void SetFocalPoint(const glm::vec3& point);
+
 		const glm::mat4& GetViewMatrix() const { return m_ViewMatrix; }
 		const glm::mat4& GetProjectionMatrix() const { return m_ProjectionMatrix; }
 		const glm::mat4& GetViewProjection() const { return m_ProjectionMatrix * m_ViewMatrix; }
@@ -49,8 +51,8 @@ namespace Axel
 		glm::vec2 m_MousePos = { 0.0f, 0.0f };
 
 		float m_Distance = 10.0f;
-		float m_Pitch = 0.0f;
-		float m_Yaw = 0.0f;
+		float m_Pitch = 0.75f;
+		float m_Yaw = -0.75f;
 
 		float m_ViewportWidth = 1280;
 		float m_ViewportHeight = 720;

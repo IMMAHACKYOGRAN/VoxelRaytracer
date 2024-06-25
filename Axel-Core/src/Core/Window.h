@@ -35,6 +35,8 @@ namespace Axel
 		void SetVSync(bool enabled);
 		bool IsVSync() const;
 
+		void SetIcon(int width, int height, uint8_t* pixels);
+
 		inline GLFWwindow* GetNativeWindow() const { return m_Window; };
 	private:
 		void Init(const WindowSpecification& spec);

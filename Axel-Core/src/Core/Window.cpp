@@ -164,4 +164,10 @@ namespace Axel
 	{
 		return m_Data.VSync;
 	}
+
+	void Window::SetIcon(int width, int height, uint8_t* pixels)
+	{
+		GLFWimage img[1]{width, height, pixels};
+		glfwSetWindowIcon(m_Window, 1, img);
+	}
 }

@@ -10,9 +10,11 @@ EditorLayer::EditorLayer()
 
 	m_Scene = std::shared_ptr<Axel::Scene>(new Axel::Scene);
 	m_NewEntity = m_Scene->CreateEntity();
+
     auto& camera = m_NewEntity.AddComponent<Axel::CameraComponent>();
     camera.Cam = new Camera();
     m_Scene->SetMainCameraEntity((EntityId)m_NewEntity);
+
     auto& sc = m_NewEntity.AddComponent<Axel::ScriptComponent>();
     sc.Script = new test;
 }
@@ -24,6 +26,13 @@ void EditorLayer::OnAttach()
 	fbSpec.Width = 1280;
 	fbSpec.Height = 720;
 	m_FrameBuffer = Axel::FrameBuffer::Create(fbSpec);
+
+    int w, h;
+    uint8_t* pixels = Texture2D::LoadTexture("res/assets/imgs/Icon.png", &w, &h);
+    Application::Get().SetIcon(pixels, w, h);
+
+    m_PlayButtonImage = std::make_shared<Axel::Texture2D>("res/assets/imgs/PlayButton.png");
+    m_StopButtonImage = std::make_shared<Axel::Texture2D>("res/assets/imgs/StopButton.png");
 }
 
 void EditorLayer::OnEvent(Axel::Event& e)
@@ -137,12 +146,13 @@ void EditorLayer::OnImGuiRender()
     {
         m_ViewportSize = { viewportPanelSize.x, viewportPanelSize.y };
         m_FrameBuffer->Resize(m_ViewportSize.x, m_ViewportSize.y);
-        //Axel::Renderer::SetViewport(0, 0, (uint32_t)viewportPanelSize.x, (uint32_t)viewportPanelSize.y);
         m_EditorCamera.ResizeViewport(m_ViewportSize.x, m_ViewportSize.y);
     }
 
     uint32_t textureID = m_FrameBuffer->GetAttachmentRendererID(0);
     ImGui::Image(reinterpret_cast<void*>(textureID), ImVec2{ m_ViewportSize.x, m_ViewportSize.y }, ImVec2{ 0, 1 }, ImVec2{ 1, 0 });
+
+    DrawUIButtons();
 
     ImGui::End(); // Viewport
     ImGui::PopStyleVar();
@@ -157,8 +167,48 @@ void EditorLayer::OnImGuiRender()
     ImGui::Text("Entity");
     ImGui::Separator();
     ImGui::DragFloat3("Position", glm::value_ptr(m_NewEntity.GetComponent<Axel::TransformComponent>().Translation), 0.01f);
+    if (ImGui::Button("Set"))
+        m_EditorCamera.SetFocalPoint(m_NewEntity.GetComponent<Axel::TransformComponent>().Translation);
+    if (ImGui::Button("Reset"))
+        m_EditorCamera.SetFocalPoint({0.0f, 0.0f, 0.0f});
 	ImGui::End(); // Debug
 
     ImGui::End(); // Docspace
     ImGui::PopFont();
+}
+
+void EditorLayer::DrawUIButtons()
+{
+    ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(0, 2));
+    ImGui::PushStyleVar(ImGuiStyleVar_ItemInnerSpacing, ImVec2(0, 0));
+    ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(0, 0, 0, 0));
+    auto& colors = ImGui::GetStyle().Colors;
+    const ImVec4& buttonHovered = colors[ImGuiCol_ButtonHovered];
+    ImGui::PushStyleColor(ImGuiCol_ButtonHovered, ImVec4(buttonHovered.x, buttonHovered.y, buttonHovered.z, 0.5f));
+    const ImVec4& buttonActive = colors[ImGuiCol_ButtonActive];
+    ImGui::PushStyleColor(ImGuiCol_ButtonActive, ImVec4(buttonActive.x, buttonActive.y, buttonActive.z, 0.5f));
+
+    ImGui::Begin("##toolbar", nullptr, ImGuiWindowFlags_NoDecoration | ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_NoScrollWithMouse);
+
+    ImVec4 tintColor = ImVec4(1, 1, 1, 1);
+
+    float size = ImGui::GetWindowHeight() - 4.0f;
+    ImGui::SetCursorPosX((ImGui::GetWindowContentRegionMax().x * 0.5f) - (size * 0.5f));
+
+    std::shared_ptr<Axel::Texture2D> icon = m_EditorState == EditorState::Editing ? m_PlayButtonImage : m_StopButtonImage;
+    if (ImGui::ImageButton((ImTextureID)(uint64_t)icon->GetRendererID(), ImVec2(size, size), ImVec2(0, 0), ImVec2(1, 1), 0, ImVec4(0.0f, 0.0f, 0.0f, 0.0f), tintColor))
+    {
+        if (m_EditorState == EditorState::Editing)
+        {
+            m_EditorState = EditorState::Running;
+        }
+        else
+        {
+            m_EditorState = EditorState::Editing;
+        }
+    }
+
+    ImGui::PopStyleVar(2);
+    ImGui::PopStyleColor(3);
+    ImGui::End();
 }
