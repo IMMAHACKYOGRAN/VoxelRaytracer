@@ -32,6 +32,7 @@ project "Axel-Core"
         "vendor/GLFW/include",
         "vendor/Glad/include",
         "vendor/imgui",
+        "vendor/yaml-cpp/include",
     }
 
     links
@@ -39,6 +40,7 @@ project "Axel-Core"
         "GLFW",
         "Glad",
         "imgui",
+        "yaml-cpp",
         "opengl32.lib",
     }
 

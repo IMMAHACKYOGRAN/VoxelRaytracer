@@ -20,6 +20,7 @@ project "Axel-Editor"
         "../Axel-Core/vendor/GLFW/include",
         "../Axel-Core/vendor/imgui",
         "../Axel-Core/vendor/glm",
+        "../Axel-Core/vendor/yaml-cpp/include",
     }
 
     links

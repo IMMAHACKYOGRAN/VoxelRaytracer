@@ -13,11 +13,22 @@ void PropertiesScenePanel::Draw()
 
 	ImGui::Begin("Scene");
 
+	if (ImGui::BeginPopupContextWindow())
+	{
+		if (ImGui::MenuItem("Add Entity")) 
+		{
+			m_SelectedEntity = (Axel::EntityId)m_CurrentScene->CreateEntity(); 
+			m_IsEntitySelected = true;
+			m_FocusRename = true;
+		}
+		ImGui::EndPopup();
+	}
 
 	if (m_DeleteEntity)
 	{
 		m_CurrentScene->RemoveEntity(m_SelectedEntity);
 		m_IsEntitySelected = false;
+		m_DeleteEntity = false;
 	}
 
 	for (const auto& e : m_CurrentScene->GetEntitiesWith<Axel::NameComponent>())
@@ -45,12 +56,18 @@ void PropertiesScenePanel::DrawEntity(Axel::EntityId entity)
 	{
 		m_SelectedEntity = entity;
 		m_IsEntitySelected = true;
+
+		if (ImGui::IsMouseDoubleClicked(0))
+			m_EditorCamera->SetFocalPoint(m_CurrentScene->GetComponent<Axel::TransformComponent>(m_SelectedEntity).Translation);
 	}
 
 	if (ImGui::BeginPopupContextItem())
 	{
 		if (ImGui::MenuItem("Copy")) {}
 		if (ImGui::MenuItem("Paste")) {}
+		ImGui::Separator();
+		if (ImGui::MenuItem("Focus"))
+			m_EditorCamera->SetFocalPoint(m_CurrentScene->GetComponent<Axel::TransformComponent>(m_SelectedEntity).Translation);
 		ImGui::Separator();
 		if (ImGui::MenuItem("Rename")) { m_FocusRename = true; }
 		if (ImGui::MenuItem("Delete")) { m_DeleteEntity = true; }

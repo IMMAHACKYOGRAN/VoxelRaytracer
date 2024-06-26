@@ -46,10 +46,14 @@ namespace Axel
 		template<typename T>
 		std::vector<EntityId> GetEntitiesWith()	{ return m_Registry.GetEntitiesWith<T>(); }
 
+		Entity GetEntityById(EntityId entity);
+
 	private:
 		EntityRegistry m_Registry{10};
 		std::unordered_map<EntityId, Entity> m_EntityMap;
 
 		EntityId m_MainCameraEntity;
+
+		friend class Serializer;
 	};
 }

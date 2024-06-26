@@ -9,3 +9,4 @@
 
 #include "ECS/Entity.h"
 #include "ECS/ScriptableEntity.h"
+#include "Scene/Serializer.h"

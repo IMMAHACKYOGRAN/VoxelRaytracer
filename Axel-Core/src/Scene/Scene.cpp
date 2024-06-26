@@ -80,7 +80,7 @@ namespace Axel
 		const auto& cam = m_Registry.GetComponent<CameraComponent>(m_MainCameraEntity).Cam;
 		const auto& transform = m_Registry.GetComponent<TransformComponent>(m_MainCameraEntity);
 		
-		if (cam)
+		if (cam != nullptr)
 		{
 			Renderer::BeginScene(*cam, transform.GetTransform());
 
@@ -89,5 +89,9 @@ namespace Axel
 
 			Renderer::EndScene();
 		}
+	}
+	Entity Scene::GetEntityById(EntityId entity)
+	{
+		return m_EntityMap[entity];
 	}
 }

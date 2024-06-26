@@ -76,15 +76,12 @@ namespace Axel
 
 		void RemoveEntity(EntityId entity)
 		{
-			// WARNING: Removing this will leave hanging data but it should never be accessed.
-			/*for (auto it = m_ComponentPools.begin(); it != m_ComponentPools.end(); it++)
+			for (auto& it : m_ComponentToEntities)
 			{
-				ComponentPool<decltype(it->second.get())>* componentpool = dynamic_cast<ComponentPool<decltype(it->second.get())>*>(m_ComponentPools[it->first].get());
-				componentpool->Remove(entity);
-			}*/
-
-			for (auto it = m_ComponentToEntities.begin(); it != m_ComponentToEntities.end(); it++)
-				it->second.erase(std::find(it->second.begin(), it->second.end(), entity));
+				auto e = std::find(it.second.begin(), it.second.end(), entity);
+				if (e != it.second.end())
+					it.second.erase(e);
+			}
 
 			m_AvailableEntityIDs.push(entity);
 			m_Signitures[entity] = ComponentSigniture();

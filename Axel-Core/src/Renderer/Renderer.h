@@ -21,7 +21,7 @@ namespace Axel
 
 		static void SetViewport(uint32_t x, uint32_t y, uint32_t width, uint32_t height);
 
-		static void DrawCube(TransformComponent transform);
+		static void DrawCube(const TransformComponent& transform);
 
 		struct Stats
 		{

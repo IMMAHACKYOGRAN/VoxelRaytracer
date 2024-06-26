@@ -30,14 +30,12 @@ private:
 
 	std::shared_ptr<Axel::Scene> m_CurrentScene;
 	std::shared_ptr<Axel::FrameBuffer> m_FrameBuffer;
-	Axel::Entity m_NewEntity;
 	Axel::EntityId m_SelectedEntity;
 
 	PropertiesScenePanel m_PropertiesScenePanel;
 
 	ImFont* m_Font;
 
-	glm::vec2 m_ViewportBounds[2];
 	glm::vec2 m_ViewportSize;
 
 	bool m_ViewportFocused = false;

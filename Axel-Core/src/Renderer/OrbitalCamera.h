@@ -10,6 +10,7 @@ namespace Axel
 	class OrbitalCamera
 	{
 	public:
+		OrbitalCamera();
 		OrbitalCamera(float verticalFov, float aspectRatio, float nearClip, float farClip);
 		~OrbitalCamera();
 

@@ -12,6 +12,7 @@ group "Dependencies"
     include "Axel-Core/vendor/GLFW"
     include "Axel-Core/vendor/Glad"
     include "Axel-Core/vendor/imgui"
+    include "Axel-Core/vendor/yaml-cpp"
 group ""
 
 include "Axel-Core/Build-Core.lua"

@@ -7,19 +7,6 @@ EditorLayer::EditorLayer()
 {
     ImGuiIO& io = ImGui::GetIO();
     m_Font = io.Fonts->AddFontFromFileTTF("res/assets/fonts/Roboto-Regular.ttf", 16.0f, NULL, io.Fonts->GetGlyphRangesDefault());
-
-    m_CurrentScene = std::shared_ptr<Axel::Scene>(new Axel::Scene);
-    m_PropertiesScenePanel.SetScene(m_CurrentScene);
-
-	m_NewEntity = m_CurrentScene->CreateEntity();
-    m_CurrentScene->CreateEntity();
-
-    auto& camera = m_NewEntity.AddComponent<Axel::CameraComponent>();
-    camera.Cam = new Camera();
-    m_CurrentScene->SetMainCameraEntity((EntityId)m_NewEntity);
-
-    auto& sc = m_NewEntity.AddComponent<Axel::ScriptComponent>();
-    sc.Script = new test;
 }
 
 void EditorLayer::OnAttach()
@@ -36,6 +23,10 @@ void EditorLayer::OnAttach()
 
     m_PlayButtonImage = std::make_shared<Axel::Texture2D>("res/assets/imgs/PlayButton.png");
     m_StopButtonImage = std::make_shared<Axel::Texture2D>("res/assets/imgs/StopButton.png");
+
+    m_CurrentScene = std::shared_ptr<Axel::Scene>(new Axel::Scene);
+    m_PropertiesScenePanel.SetScene(m_CurrentScene);
+    m_PropertiesScenePanel.SetEditorCamera(m_EditorCamera);
 }
 
 void EditorLayer::OnEvent(Axel::Event& e)
@@ -115,7 +106,11 @@ void EditorLayer::OnImGuiRender()
             if (ImGui::MenuItem("New Project")) { /*Create new project*/ }
             if (ImGui::MenuItem("Open Project", "Ctrl+O")) { /*Open existing project*/ }
             if (ImGui::MenuItem("New Scene", "Ctrl+N")) { /*Open existing project*/ }
-            if (ImGui::MenuItem("Save Scene", "Ctrl+S")) { /*Open existing project*/ }
+            if (ImGui::MenuItem("Save Scene", "Ctrl+S")) 
+            {
+                Axel::Serializer s(m_CurrentScene);
+                s.Serialize("res/assets/scenes/text.axl");
+            }
             ImGui::Separator();
             if (ImGui::MenuItem("Exit")) { Axel::Application::Get().Close(); }
 
@@ -136,9 +131,6 @@ void EditorLayer::OnImGuiRender()
     ImGui::Begin("Viewport");
     ImVec2 min= ImGui::GetWindowContentRegionMin();
     ImVec2 max = ImGui::GetWindowContentRegionMax();
-    ImVec2 offset = ImGui::GetWindowPos();
-    m_ViewportBounds[0] = { min.x + offset.x, min.y + offset.y };
-    m_ViewportBounds[1] = { max.x + offset.x, max.y + offset.y };
 
     m_ViewportFocused = ImGui::IsWindowFocused();
     m_ViewportHovered = ImGui::IsWindowHovered();
@@ -167,8 +159,6 @@ void EditorLayer::OnImGuiRender()
 	ImGui::Text("FPS: %d", (int)(1.0f / m_Dt));
 	ImGui::Text("Draw Calls: %d", Axel::Renderer::GetStats().DrawCalls);
     ImGui::Separator();
-    if (ImGui::Button("Set"))
-        m_EditorCamera.SetFocalPoint(m_NewEntity.GetComponent<Axel::TransformComponent>().Translation);
     if (ImGui::Button("Reset"))
         m_EditorCamera.SetFocalPoint({0.0f, 0.0f, 0.0f});
 	ImGui::End(); // Debug

@@ -96,7 +96,7 @@ namespace Axel
 
 	}
 
-	void Renderer::DrawCube(TransformComponent transform)
+	void Renderer::DrawCube(const TransformComponent& transform)
 	{
 		s_Data.VoxelShader->Bind();
 		s_Data.VoxelShader->UploadUniformMat4("u_View", s_Data.View);

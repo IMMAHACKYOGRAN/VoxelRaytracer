@@ -4,6 +4,12 @@
 
 namespace Axel
 {
+	OrbitalCamera::OrbitalCamera()
+	{
+		RecalculateProjectionMatrix();
+		RecalculateViewMatrix();
+	}
+
 	OrbitalCamera::OrbitalCamera(float verticalFov, float aspectRatio, float nearClip, float farClip)
 		: m_VerticalFov(verticalFov), m_AspectRatio(aspectRatio), m_NearClip(nearClip), m_FarClip(farClip)
 	{
