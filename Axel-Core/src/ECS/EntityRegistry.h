@@ -74,6 +74,22 @@ namespace Axel
 
 		EntityId CreateEntity() { return GetUniqueID(); }
 
+		void RemoveEntity(EntityId entity)
+		{
+			// WARNING: Removing this will leave hanging data but it should never be accessed.
+			/*for (auto it = m_ComponentPools.begin(); it != m_ComponentPools.end(); it++)
+			{
+				ComponentPool<decltype(it->second.get())>* componentpool = dynamic_cast<ComponentPool<decltype(it->second.get())>*>(m_ComponentPools[it->first].get());
+				componentpool->Remove(entity);
+			}*/
+
+			for (auto it = m_ComponentToEntities.begin(); it != m_ComponentToEntities.end(); it++)
+				it->second.erase(std::find(it->second.begin(), it->second.end(), entity));
+
+			m_AvailableEntityIDs.push(entity);
+			m_Signitures[entity] = ComponentSigniture();
+		}
+
 		template<typename T>
 		T& AddComponent(EntityId entity)
 		{
@@ -105,6 +121,8 @@ namespace Axel
 			{
 				ComponentPool<T>* componentpool = dynamic_cast<ComponentPool<T>*>(m_ComponentPools[componentid].get());
 				componentpool->Remove(entity);
+				m_Signitures[entity].set(m_SignitureIndex[componentid], 0);
+				m_ComponentToEntities[componentid].erase(std::find(m_ComponentToEntities[componentid].begin(), m_ComponentToEntities[componentid].end(), entity));
 			}
 		}
 

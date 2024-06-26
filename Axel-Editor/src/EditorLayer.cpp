@@ -12,6 +12,7 @@ EditorLayer::EditorLayer()
     m_PropertiesScenePanel.SetScene(m_CurrentScene);
 
 	m_NewEntity = m_CurrentScene->CreateEntity();
+    m_CurrentScene->CreateEntity();
 
     auto& camera = m_NewEntity.AddComponent<Axel::CameraComponent>();
     camera.Cam = new Camera();
@@ -201,12 +202,11 @@ void EditorLayer::DrawUIButtons()
     {
         if (m_EditorState == EditorState::Editing)
         {
+            m_CurrentScene->OnEditorPlayStart();
             m_EditorState = EditorState::Running;
         }
         else
-        {
             m_EditorState = EditorState::Editing;
-        }
     }
 
     ImGui::PopStyleVar(2);

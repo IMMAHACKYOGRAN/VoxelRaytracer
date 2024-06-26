@@ -16,7 +16,7 @@ namespace Axel
 
 		Entity CreateEntity();
 		Entity CreateEntity(const std::string& name);
-		void DestroyEntity(Entity entity);
+		void RemoveEntity(EntityId entity);
 
 		void SetMainCameraEntity(EntityId entity) { m_MainCameraEntity = entity; }
 
@@ -48,6 +48,7 @@ namespace Axel
 
 	private:
 		EntityRegistry m_Registry{10};
+		std::unordered_map<EntityId, Entity> m_EntityMap;
 
 		EntityId m_MainCameraEntity;
 	};

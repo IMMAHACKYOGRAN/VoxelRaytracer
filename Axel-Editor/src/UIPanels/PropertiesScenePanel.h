@@ -20,6 +20,8 @@ private:
 	
 private:
 	bool m_FocusRename = false;
+	bool m_DeleteEntity = false;
+
 	std::shared_ptr<Axel::Scene> m_CurrentScene;
 
 	bool m_IsEntitySelected = false;

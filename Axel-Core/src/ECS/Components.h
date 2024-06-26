@@ -30,19 +30,13 @@ namespace Axel
 		}
 	};
 
-	class ScriptableEntity
-	{
-	public:
-		ScriptableEntity() {}
-		virtual ~ScriptableEntity() {}
-
-		virtual void Start() {}
-		virtual void Update(float dt) {}
-	};
+	class ScriptableEntity;
 
 	struct ScriptComponent
 	{
 		ScriptableEntity* Script = nullptr;
+
+		void SetScript() {}
 
 		ScriptComponent() = default;
 	};

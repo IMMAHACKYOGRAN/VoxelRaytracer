@@ -1,6 +1,7 @@
 #include "pch.h"
 #include "Scene/Scene.h"
 #include "ECS/Entity.h"
+#include "ECS/ScriptableEntity.h"
 
 namespace Axel
 {
@@ -23,17 +24,28 @@ namespace Axel
 		auto& nc = e.AddComponent<NameComponent>();
 		nc.Name = name;
 
+		m_EntityMap[id] = e;
+
 		return e;
 	}
 
 	Entity Scene::CreateEntity(const std::string& name)
 	{
-		Entity e{ this, m_Registry.CreateEntity() };
+		EntityId id = m_Registry.CreateEntity();
+		Entity e{ this, id };
 		e.AddComponent<TransformComponent>();
 		auto& nc = e.AddComponent<NameComponent>();
 		nc.Name = name;
 
+		m_EntityMap[id] = e;
+
 		return e;
+	}
+
+	void Scene::RemoveEntity(EntityId entity)
+	{
+		m_Registry.RemoveEntity(entity);
+		m_EntityMap.erase(entity);
 	}
 
 	void Scene::OnEditorUpdate(float dt, const OrbitalCamera& camera)

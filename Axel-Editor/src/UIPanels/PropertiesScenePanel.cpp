@@ -13,6 +13,13 @@ void PropertiesScenePanel::Draw()
 
 	ImGui::Begin("Scene");
 
+
+	if (m_DeleteEntity)
+	{
+		m_CurrentScene->RemoveEntity(m_SelectedEntity);
+		m_IsEntitySelected = false;
+	}
+
 	for (const auto& e : m_CurrentScene->GetEntitiesWith<Axel::NameComponent>())
 		DrawEntity(e);
 
@@ -46,7 +53,7 @@ void PropertiesScenePanel::DrawEntity(Axel::EntityId entity)
 		if (ImGui::MenuItem("Paste")) {}
 		ImGui::Separator();
 		if (ImGui::MenuItem("Rename")) { m_FocusRename = true; }
-		if (ImGui::MenuItem("Delete")) {}
+		if (ImGui::MenuItem("Delete")) { m_DeleteEntity = true; }
 		ImGui::EndPopup();
 	}
 
@@ -166,6 +173,7 @@ void PropertiesScenePanel::DrawAllComponents()
 		{
 			
 		});
+	ImGui::Separator();
 
 	ImGui::Dummy({0, 10});
 
@@ -175,6 +183,7 @@ void PropertiesScenePanel::DrawAllComponents()
 	float off = (avail - size) / 2;
 	float pos = ImGui::GetCursorPosX();
 	ImGui::SetCursorPosX(pos + off);
+
 
 	if (ImGui::Button("Add Component"))
 		ImGui::OpenPopup("AddComponent");
