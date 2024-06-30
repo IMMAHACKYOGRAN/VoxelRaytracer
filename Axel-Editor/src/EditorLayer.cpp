@@ -231,6 +231,7 @@ void EditorLayer::OnImGuiRender()
     {
         m_ViewportSize = { viewportPanelSize.x, viewportPanelSize.y };
         m_FrameBuffer->Resize(m_ViewportSize.x, m_ViewportSize.y);
+        Axel::Renderer::SetViewport(0, 0, viewportPanelSize.x, viewportPanelSize.y);
         m_EditorCamera.ResizeViewport(m_ViewportSize.x, m_ViewportSize.y);
         if (m_CurrentScene->IsMainCameraEntity())
             m_CurrentScene->GetComponent<CameraComponent>(m_CurrentScene->GetMainCameraEntity()).Cam.ResizeViewport(m_ViewportSize.x, m_ViewportSize.y);

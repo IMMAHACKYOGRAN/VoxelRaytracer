@@ -9,6 +9,8 @@ namespace Axel
 {
 	struct RendererData
 	{
+		glm::vec2 ViewportSize;
+
 		std::shared_ptr<VertexArray> CubeVertexArray;
 		std::shared_ptr<Shader> VoxelShader;
 
@@ -67,7 +69,8 @@ namespace Axel
 		std::shared_ptr<IndexBuffer> indexBuffer = IndexBuffer::Create(cubeIndecies, sizeof(cubeIndecies) / sizeof(uint32_t));
 		s_Data.CubeVertexArray->SetIndexBuffer(indexBuffer);
 
-		s_Data.VoxelShader = Shader::Create("res/shaders/3D.glsl");
+		//s_Data.VoxelShader = Shader::Create("res/shaders/3D.glsl");
+		s_Data.VoxelShader = Shader::Create("res/shaders/VoxelVert.glsl", "res/shaders/VoxelFrag.glsl");
 		s_Data.VoxelShader->Bind();
 	}
 
@@ -102,6 +105,8 @@ namespace Axel
 		s_Data.VoxelShader->UploadUniformMat4("u_View", s_Data.View);
 		s_Data.VoxelShader->UploadUniformMat4("u_Projection", s_Data.Projection);
 		s_Data.VoxelShader->UploadUniformMat4("u_Model", transform.GetTransform());
+
+		s_Data.VoxelShader->UploadUniformFloat2("u_ViewportSize", s_Data.ViewportSize);
 		
 		DrawIndexed();
 	}
@@ -120,6 +125,7 @@ namespace Axel
 
 	void Renderer::SetViewport(uint32_t x, uint32_t y, uint32_t width, uint32_t height)
 	{
+		s_Data.ViewportSize = { width, height };
 		glViewport(x, y, width, height);
 	}
 
