@@ -1,0 +1,21 @@
+Scene: Untitled
+EditorCamera:
+  VerticalFov: 30
+  NearClip: 0.00999999978
+  FarClip: 100
+  FocalPoint: [0, 0, 0]
+  Distance: 5
+  Pitch: 0.752399981
+  Yaw: -0.75
+Entities:
+  - Entity: 0
+    NameComponent:
+      Name: Entity 0
+    TransformComponent:
+      Translation: [0.140128747, 0.0360012352, 0.738731384]
+      Rotation: [0, 0, 0]
+      Scale: [1, 1, 1]
+    CameraComponent:
+      VerticalFov: 45
+      NearClip: 0.100000001
+      FarClip: 100

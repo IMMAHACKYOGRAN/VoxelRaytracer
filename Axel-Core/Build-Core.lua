@@ -16,6 +16,9 @@ project "Axel-Core"
         "src/**.cpp",
         "vendor/glm/**.hpp",
         "vendor/glm/**.inl",
+
+        "vendor/ImGuizmo/ImGuizmo.h",
+        "vendor/ImGuizmo/ImGuizmo.cpp",
     }
 
     defines
@@ -32,6 +35,7 @@ project "Axel-Core"
         "vendor/GLFW/include",
         "vendor/Glad/include",
         "vendor/imgui",
+        "vendor/ImGuizmo",
         "vendor/yaml-cpp/include",
     }
 
@@ -43,6 +47,9 @@ project "Axel-Core"
         "yaml-cpp",
         "opengl32.lib",
     }
+
+    filter "files:vendor/ImGuizmo/**.cpp"
+        flags { "NoPCH" }
 
     filter "system:windows"
         systemversion "latest"

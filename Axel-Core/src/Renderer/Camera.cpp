@@ -29,6 +29,6 @@ namespace Axel
 
 	void Camera::RecalculateProjectionMatrix()
 	{
-		m_ProjectionMatrix = glm::inverse(glm::perspective(glm::radians(m_VerticalFov), m_AspectRatio, m_NearClip, m_FarClip));
+		m_ProjectionMatrix = glm::perspective(glm::radians(m_VerticalFov), m_AspectRatio, m_NearClip, m_FarClip);
 	}
 }

@@ -18,7 +18,9 @@ namespace Axel
 		Entity CreateEntity(const std::string& name);
 		void RemoveEntity(EntityId entity);
 
-		void SetMainCameraEntity(EntityId entity) { m_MainCameraEntity = entity; }
+		void SetMainCameraEntity(EntityId entity) { m_MainCameraEntity = entity; m_MainCameraSet = true; }
+		const EntityId GetMainCameraEntity() const { return m_MainCameraEntity; }
+		const bool IsMainCameraEntity() const { return m_MainCameraSet; }
 
 		void OnEditorUpdate(float dt, const OrbitalCamera& camera);
 
@@ -40,6 +42,9 @@ namespace Axel
 			if (typeid(T) == typeid(NameComponent) || typeid(T) == typeid(TransformComponent))
 				return;
 
+			if (typeid(T) == typeid(CameraComponent) && entity == m_MainCameraEntity)
+				m_MainCameraSet = false;
+
 			m_Registry.RemoveComponent<T>(entity); 
 		}
 
@@ -53,6 +58,7 @@ namespace Axel
 		std::unordered_map<EntityId, Entity> m_EntityMap;
 
 		EntityId m_MainCameraEntity;
+		bool m_MainCameraSet = false;
 
 		friend class Serializer;
 	};

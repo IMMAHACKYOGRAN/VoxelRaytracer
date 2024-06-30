@@ -58,7 +58,10 @@ void PropertiesScenePanel::DrawEntity(Axel::EntityId entity)
 		m_IsEntitySelected = true;
 
 		if (ImGui::IsMouseDoubleClicked(0))
+		{
 			m_EditorCamera->SetFocalPoint(m_CurrentScene->GetComponent<Axel::TransformComponent>(m_SelectedEntity).Translation);
+			m_EditorCamera->SetDistance(10.0f);
+		}
 	}
 
 	if (ImGui::BeginPopupContextItem())
@@ -173,17 +176,17 @@ void PropertiesScenePanel::DrawAllComponents()
 
 	DrawComponent<Axel::CameraComponent>("Camera", [](auto& comp)
 		{
-			float fov = comp.Cam->GetFOV();
-			ImGui::DragFloat("Fov", &fov);
-			comp.Cam->SetFOV(fov);
+			float fov = comp.Cam.GetFOV();
+			ImGui::DragFloat("Fov", &fov, 1.0f, 1.0f, 90.0f, "%.2f", ImGuiSliderFlags_AlwaysClamp);
+			comp.Cam.SetFOV(fov);
 
-			float ndist = comp.Cam->GetNearClip();
-			ImGui::DragFloat("Near Clip", &ndist, 1.0f, 0.01f, 0.0f, "%.3f", ImGuiSliderFlags_AlwaysClamp);
-			comp.Cam->SetNearClip(ndist);
+			float ndist = comp.Cam.GetNearClip();
+			ImGui::DragFloat("Near Clip", &ndist, 1.0f, 0.01f, 1000.0f, "%.2f", ImGuiSliderFlags_AlwaysClamp);
+			comp.Cam.SetNearClip(ndist);
 
-			float fdist = comp.Cam->GetFarClip();
-			ImGui::DragFloat("Far Clip", &fdist, 1.0f, 0.01f, 0.0f, "%.3f", ImGuiSliderFlags_AlwaysClamp);
-			comp.Cam->SetFarClip(fdist);
+			float fdist = comp.Cam.GetFarClip();
+			ImGui::DragFloat("Far Clip", &fdist, 1.0f, 0.02f, 10000.0f, "%.2f", ImGuiSliderFlags_AlwaysClamp);
+			comp.Cam.SetFarClip(fdist);
 		});
 
 	DrawComponent<Axel::ScriptComponent>("Script", [](auto& comp)
@@ -198,18 +201,27 @@ void PropertiesScenePanel::DrawAllComponents()
 	float avail = ImGui::GetContentRegionAvail().x;
 
 	float off = (avail - size) / 2;
-	float pos = ImGui::GetCursorPosX();
-	ImGui::SetCursorPosX(pos + off);
-
+	ImGui::SetCursorPosX(ImGui::GetCursorPosX() + off);
 
 	if (ImGui::Button("Add Component"))
 		ImGui::OpenPopup("AddComponent");
 
-	ImGui::SetCursorPosX(pos);
-
 	if (ImGui::BeginPopup("AddComponent"))
 	{
-		ImGui::Text("Boo");
+		if (ImGui::Button("Camera Component")) 
+		{
+			if (!m_CurrentScene->HasComponent<Axel::CameraComponent>(m_SelectedEntity))
+			{
+				m_CurrentScene->AddComponent<Axel::CameraComponent>(m_SelectedEntity);
+				m_CurrentScene->SetMainCameraEntity(m_SelectedEntity);
+			}
+		}
+
+		if (ImGui::Button("Script Component"))
+		{
+			if (!m_CurrentScene->HasComponent<Axel::ScriptComponent>(m_SelectedEntity))
+				m_CurrentScene->AddComponent<Axel::ScriptComponent>(m_SelectedEntity);
+		}
 
 		ImGui::EndPopup();
 	}

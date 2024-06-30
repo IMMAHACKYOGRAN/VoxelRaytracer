@@ -21,6 +21,7 @@ namespace Axel
 		void ResizeViewport(float width, float height);
 
 		void SetFocalPoint(const glm::vec3& point);
+		void SetDistance(float dist);
 
 		const glm::mat4& GetViewMatrix() const { return m_ViewMatrix; }
 		const glm::mat4& GetProjectionMatrix() const { return m_ProjectionMatrix; }
@@ -36,27 +37,29 @@ namespace Axel
 	private:
 		void RecalculateProjectionMatrix();
 		void RecalculateViewMatrix();
-		
+
+		// Serialization
+		void SetPitchAndYaw(float pitch, float yaw);
+
 	private:
-		float m_VerticalFov = 45.0f;
-		float m_AspectRatio = 16.0f/9.0f;
-		float m_NearClip = 0.1f;
-		float m_FarClip = 100.0f;
+		float m_VerticalFov = 45.0f; // Serialize
+		float m_AspectRatio = 16.0f/9.0f; // Serialize
+		float m_NearClip = 0.1f; // Serialize
+		float m_FarClip = 100.0f; // Serialize
 
 		glm::mat4 m_ViewMatrix{ 1.0f };
 		glm::mat4 m_ProjectionMatrix{ 1.0f };
 		glm::vec3 m_Position{ 0.0f };
-		glm::vec3 m_FocalPoint{ 0.0f };
+		glm::vec3 m_FocalPoint{ 0.0f }; // Serialize
 		glm::quat m_Orientation;
 
 		glm::vec2 m_MousePos = { 0.0f, 0.0f };
 
-		float m_Distance = 10.0f;
-		float m_Pitch = 0.75f;
-		float m_Yaw = -0.75f;
+		float m_Distance = 10.0f; // Serialize
+		float m_Pitch = 0.75f; // Serialize
+		float m_Yaw = -0.75f; // Serialize
 
-		float m_ViewportWidth = 1280;
-		float m_ViewportHeight = 720;
+		friend class Serializer;
 	};
 
 }

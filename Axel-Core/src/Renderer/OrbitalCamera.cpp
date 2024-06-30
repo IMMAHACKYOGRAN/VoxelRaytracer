@@ -34,6 +34,14 @@ namespace Axel
 		m_ViewMatrix = glm::inverse(glm::translate(glm::mat4(1.0f), m_Position) * glm::toMat4(m_Orientation));
 	}
 
+	void OrbitalCamera::SetPitchAndYaw(float pitch, float yaw)
+	{
+		m_Pitch = pitch;
+		m_Yaw = yaw;
+
+		RecalculateViewMatrix();
+	}
+
 	void OrbitalCamera::OnUpdate(float dt)
 	{
 		const glm::vec2 mouse = Input::GetMousePosition();
@@ -86,7 +94,12 @@ namespace Axel
 	void OrbitalCamera::SetFocalPoint(const glm::vec3& point)
 	{
 		m_FocalPoint = point;
-		m_Distance = 10.0f;
+		RecalculateViewMatrix();
+	}
+
+	void OrbitalCamera::SetDistance(float dist)
+	{
+		m_Distance = dist;
 		RecalculateViewMatrix();
 	}
 

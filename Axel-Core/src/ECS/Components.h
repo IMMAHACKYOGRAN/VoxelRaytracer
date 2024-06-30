@@ -43,7 +43,7 @@ namespace Axel
 	
 	struct CameraComponent
 	{
-		Camera* Cam = nullptr;
+		Camera Cam;
 
 		CameraComponent() = default;
 	};

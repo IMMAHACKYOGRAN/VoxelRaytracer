@@ -44,6 +44,9 @@ namespace Axel
 
 	void Scene::RemoveEntity(EntityId entity)
 	{
+		if (entity == m_MainCameraEntity)
+			m_MainCameraSet = false;
+
 		m_Registry.RemoveEntity(entity);
 		m_EntityMap.erase(entity);
 	}
@@ -77,12 +80,12 @@ namespace Axel
 				s->Update(dt);
 		}
 
-		const auto& cam = m_Registry.GetComponent<CameraComponent>(m_MainCameraEntity).Cam;
-		const auto& transform = m_Registry.GetComponent<TransformComponent>(m_MainCameraEntity);
-		
-		if (cam != nullptr)
+		if (m_MainCameraSet)
 		{
-			Renderer::BeginScene(*cam, transform.GetTransform());
+			const auto& cam = m_Registry.GetComponent<CameraComponent>(m_MainCameraEntity).Cam;
+			const auto& transform = m_Registry.GetComponent<TransformComponent>(m_MainCameraEntity);
+
+			Renderer::BeginScene(cam, transform.GetTransform());
 
 			for (const auto entity : GetEntitiesWith<TransformComponent>())
 				Renderer::DrawCube(GetComponent<TransformComponent>(entity));

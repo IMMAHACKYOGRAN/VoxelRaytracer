@@ -1,6 +1,57 @@
 #include "EditorLayer.h"
 #include "../res/assets/scripts/test.h"
 #include <gtc/type_ptr.hpp>
+#include <glm/gtx/matrix_decompose.hpp>
+
+// File dialogs
+#include <commdlg.h>
+#define GLFW_EXPOSE_NATIVE_WIN32
+#include <GLFW/glfw3native.h>
+
+// From https://stackoverflow.com/questions/4167286/win32-function-to-openfiledialog
+static std::string OpenAxelFile()
+{
+    OPENFILENAMEA ofn;
+    CHAR szFile[260] = { 0 };
+    ZeroMemory(&ofn, sizeof(OPENFILENAMEA));
+    ofn.lStructSize = sizeof(OPENFILENAMEA);
+    ofn.hwndOwner = glfwGetWin32Window(Axel::Application::Get().GetWindow().GetNativeWindow());
+    ofn.lpstrFile = szFile;
+    ofn.nMaxFile = sizeof(szFile);
+    ofn.lpstrFilter = "Axel Scene (*.axl)\0*.axl\0";
+    ofn.nFilterIndex = 1;
+    ofn.Flags = OFN_PATHMUSTEXIST | OFN_FILEMUSTEXIST | OFN_NOCHANGEDIR;
+    if (GetOpenFileNameA(&ofn) == TRUE)
+    {
+        return ofn.lpstrFile;
+    }
+    return std::string();
+}
+
+static std::string SaveAxelFile()
+{
+    OPENFILENAMEA ofn;
+    CHAR szFile[260] = { 0 };
+    CHAR currentDir[256] = { 0 };
+    ZeroMemory(&ofn, sizeof(OPENFILENAME));
+    ofn.lStructSize = sizeof(OPENFILENAME);
+    ofn.hwndOwner = glfwGetWin32Window((GLFWwindow*)Application::Get().GetWindow().GetNativeWindow());
+    ofn.lpstrFile = szFile;
+    ofn.nMaxFile = sizeof(szFile);
+    if (GetCurrentDirectoryA(256, currentDir))
+        ofn.lpstrInitialDir = currentDir;
+    ofn.lpstrFilter = "Axel Scene (*.axl)\0*.axl\0";
+    ofn.nFilterIndex = 1;
+    ofn.Flags = OFN_PATHMUSTEXIST | OFN_OVERWRITEPROMPT | OFN_NOCHANGEDIR;
+
+    // Sets the default extension by extracting it from the filter
+    ofn.lpstrDefExt = strchr("Axel Scene (*.axl)\0*.axl\0", '\0') + 1;
+
+    if (GetSaveFileNameA(&ofn) == TRUE)
+        return ofn.lpstrFile;
+
+    return std::string();
+}
 
 EditorLayer::EditorLayer()
 	: m_EditorCamera(30.0f, 1.7f, 0.01f, 100.0f)
@@ -23,10 +74,17 @@ void EditorLayer::OnAttach()
 
     m_PlayButtonImage = std::make_shared<Axel::Texture2D>("res/assets/imgs/PlayButton.png");
     m_StopButtonImage = std::make_shared<Axel::Texture2D>("res/assets/imgs/StopButton.png");
+    m_TranslateButtonImage = std::make_shared<Axel::Texture2D>("res/assets/imgs/Translate.png");
+    m_RotateButtonImage = std::make_shared<Axel::Texture2D>("res/assets/imgs/Rotate.png");
+    m_ScaleButtonImage = std::make_shared<Axel::Texture2D>("res/assets/imgs/Scale.png");
 
     m_CurrentScene = std::shared_ptr<Axel::Scene>(new Axel::Scene);
     m_PropertiesScenePanel.SetScene(m_CurrentScene);
     m_PropertiesScenePanel.SetEditorCamera(m_EditorCamera);
+
+    Entity e = m_CurrentScene->CreateEntity();
+    e.AddComponent<CameraComponent>();
+    m_CurrentScene->SetMainCameraEntity((EntityId)e);
 }
 
 void EditorLayer::OnEvent(Axel::Event& e)
@@ -44,14 +102,9 @@ void EditorLayer::OnUpdate(float dt)
     
     switch (m_EditorState)
     {
-        case EditorState::None:
-        {
-            AX_ERROR("How does this happen?");
-            break;
-        }
         case EditorState::Editing:
         {
-            if (m_ViewportFocused)
+            if (m_ViewportFocused && m_UpdateCam)
                 m_EditorCamera.OnUpdate(dt);
 
             m_CurrentScene->OnEditorUpdate(dt, m_EditorCamera);
@@ -103,14 +156,51 @@ void EditorLayer::OnImGuiRender()
     {
         if (ImGui::BeginMenu("File"))
         {
-            if (ImGui::MenuItem("New Project")) { /*Create new project*/ }
-            if (ImGui::MenuItem("Open Project", "Ctrl+O")) { /*Open existing project*/ }
-            if (ImGui::MenuItem("New Scene", "Ctrl+N")) { /*Open existing project*/ }
-            if (ImGui::MenuItem("Save Scene", "Ctrl+S")) 
+            if (ImGui::MenuItem("Open Scene")) 
             {
-                Axel::Serializer s(m_CurrentScene);
-                s.Serialize("res/assets/scenes/text.axl");
+                std::string path = OpenAxelFile();
+                if (!path.empty())
+                {
+                    m_WorkingDirectory = path;
+                    std::shared_ptr<Axel::Scene> newscene = std::make_shared<Axel::Scene>();
+                    Axel::Serializer s(newscene);
+                    s.Deserialize(path, m_EditorCamera);
+                    m_CurrentScene = newscene;
+                    m_PropertiesScenePanel.SetScene(m_CurrentScene);
+                    m_EditorState = EditorState::Editing;
+                    m_EditorCamera.ResizeViewport(m_ViewportSize.x, m_ViewportSize.y);
+                }
             }
+
+            if (ImGui::MenuItem("New Scene")) 
+            {
+                m_WorkingDirectory = std::string();
+                std::shared_ptr<Axel::Scene> newscene = std::make_shared<Axel::Scene>();
+                m_CurrentScene = newscene;
+                m_PropertiesScenePanel.SetScene(m_CurrentScene);
+                m_EditorState = EditorState::Editing;
+                m_EditorCamera.ResizeViewport(m_ViewportSize.x, m_ViewportSize.y);
+            }
+
+            if (ImGui::MenuItem("Save Scene")) 
+            {
+                if (m_WorkingDirectory.empty())
+                {
+                    std::string path = SaveAxelFile();
+                    if (!path.empty())
+                    {
+                        m_WorkingDirectory = path;
+                        Axel::Serializer s(m_CurrentScene);
+                        s.Serialize(m_WorkingDirectory, m_EditorCamera);
+                    }
+                }
+                else
+                {
+                    Axel::Serializer s(m_CurrentScene);
+                    s.Serialize(m_WorkingDirectory, m_EditorCamera);
+                }
+            }
+
             ImGui::Separator();
             if (ImGui::MenuItem("Exit")) { Axel::Application::Get().Close(); }
 
@@ -128,8 +218,8 @@ void EditorLayer::OnImGuiRender()
     }
 
     ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2{ 0, 0 });
-    ImGui::Begin("Viewport");
-    ImVec2 min= ImGui::GetWindowContentRegionMin();
+    ImGui::Begin("Viewport", nullptr, ImGuiWindowFlags_MenuBar);
+    ImVec2 min = ImGui::GetWindowContentRegionMin();
     ImVec2 max = ImGui::GetWindowContentRegionMax();
 
     m_ViewportFocused = ImGui::IsWindowFocused();
@@ -142,12 +232,48 @@ void EditorLayer::OnImGuiRender()
         m_ViewportSize = { viewportPanelSize.x, viewportPanelSize.y };
         m_FrameBuffer->Resize(m_ViewportSize.x, m_ViewportSize.y);
         m_EditorCamera.ResizeViewport(m_ViewportSize.x, m_ViewportSize.y);
+        if (m_CurrentScene->IsMainCameraEntity())
+            m_CurrentScene->GetComponent<CameraComponent>(m_CurrentScene->GetMainCameraEntity()).Cam.ResizeViewport(m_ViewportSize.x, m_ViewportSize.y);
     }
 
+    DrawUIButtons();
+    ImGui::SetCursorPos(ImGui::GetWindowContentRegionMin());
     uint32_t textureID = m_FrameBuffer->GetAttachmentRendererID(0);
     ImGui::Image(reinterpret_cast<void*>(textureID), ImVec2{ m_ViewportSize.x, m_ViewportSize.y }, ImVec2{ 0, 1 }, ImVec2{ 1, 0 });
 
-    DrawUIButtons();
+    if (m_PropertiesScenePanel.IsEntitySelected() && m_EditorState == EditorState::Editing)
+    {
+        m_SelectedEntity = m_PropertiesScenePanel.GetSelectedEntity();
+        ImGuizmo::SetDrawlist();
+        ImGuizmo::SetRect(ImGui::GetWindowPos().x, ImGui::GetWindowPos().y, ImGui::GetWindowWidth(), ImGui::GetWindowHeight());
+
+        const glm::mat4& cameraProjection = m_EditorCamera.GetProjectionMatrix();
+        glm::mat4 cameraView = m_EditorCamera.GetViewMatrix();
+
+        auto& tc = m_CurrentScene->GetComponent<TransformComponent>(m_SelectedEntity);
+        glm::mat4 transform = tc.GetTransform();
+
+        ImGuizmo::Manipulate(glm::value_ptr(cameraView), glm::value_ptr(cameraProjection),
+            m_CurrentGizmo, ImGuizmo::LOCAL, glm::value_ptr(transform),
+            nullptr, nullptr);
+
+        m_UpdateCam = true;
+        if (ImGuizmo::IsUsing())
+        {
+            m_UpdateCam = false;
+            glm::quat qrotation;
+            glm::vec3 translation{}, scale{};
+
+            DecomposeMatrix(transform, translation, qrotation, scale);
+
+            glm::vec3 rotation = glm::eulerAngles(qrotation);
+
+            glm::vec3 deltaRotation = rotation - tc.Rotation;
+            tc.Translation = translation;
+            tc.Rotation += deltaRotation;
+            tc.Scale = scale;
+        }
+    }
 
     ImGui::End(); // Viewport
     ImGui::PopStyleVar();
@@ -171,24 +297,17 @@ void EditorLayer::OnImGuiRender()
 
 void EditorLayer::DrawUIButtons()
 {
-    ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(0, 2));
-    ImGui::PushStyleVar(ImGuiStyleVar_ItemInnerSpacing, ImVec2(0, 0));
-    ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(0, 0, 0, 0));
-    auto& colors = ImGui::GetStyle().Colors;
-    const ImVec4& buttonHovered = colors[ImGuiCol_ButtonHovered];
-    ImGui::PushStyleColor(ImGuiCol_ButtonHovered, ImVec4(buttonHovered.x, buttonHovered.y, buttonHovered.z, 0.5f));
-    const ImVec4& buttonActive = colors[ImGuiCol_ButtonActive];
-    ImGui::PushStyleColor(ImGuiCol_ButtonActive, ImVec4(buttonActive.x, buttonActive.y, buttonActive.z, 0.5f));
+    float size = 16.0f;
 
-    ImGui::Begin("##toolbar", nullptr, ImGuiWindowFlags_NoDecoration | ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_NoScrollWithMouse);
+    ImGui::BeginMenuBar();
 
-    ImVec4 tintColor = ImVec4(1, 1, 1, 1);
+    if (ImGui::ImageButton((ImTextureID)(uint64_t)m_TranslateButtonImage->GetRendererID(), ImVec2(size, size))) { m_CurrentGizmo = ImGuizmo::OPERATION::TRANSLATE; }
+    if (ImGui::ImageButton((ImTextureID)(uint64_t)m_RotateButtonImage->GetRendererID(), ImVec2(size, size))) { m_CurrentGizmo = ImGuizmo::OPERATION::ROTATE; }
+    if (ImGui::ImageButton((ImTextureID)(uint64_t)m_ScaleButtonImage->GetRendererID(), ImVec2(size, size))) { m_CurrentGizmo = ImGuizmo::OPERATION::SCALE; }
 
-    float size = ImGui::GetWindowHeight() - 4.0f;
-    ImGui::SetCursorPosX((ImGui::GetWindowContentRegionMax().x * 0.5f) - (size * 0.5f));
-
+    ImGui::SetCursorPosX((ImGui::GetWindowWidth() / 2.0f) - (size + 2.0f));
     std::shared_ptr<Axel::Texture2D> icon = m_EditorState == EditorState::Editing ? m_PlayButtonImage : m_StopButtonImage;
-    if (ImGui::ImageButton((ImTextureID)(uint64_t)icon->GetRendererID(), ImVec2(size, size), ImVec2(0, 0), ImVec2(1, 1), 0, ImVec4(0.0f, 0.0f, 0.0f, 0.0f), tintColor))
+    if (ImGui::ImageButton((ImTextureID)(uint64_t)icon->GetRendererID(), ImVec2(size, size)))
     {
         if (m_EditorState == EditorState::Editing)
         {
@@ -199,7 +318,5 @@ void EditorLayer::DrawUIButtons()
             m_EditorState = EditorState::Editing;
     }
 
-    ImGui::PopStyleVar(2);
-    ImGui::PopStyleColor(3);
-    ImGui::End();
+    ImGui::EndMenuBar();
 }

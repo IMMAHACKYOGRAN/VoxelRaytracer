@@ -12,6 +12,7 @@ public:
 	void SetSelectedEntity(Axel::EntityId entity) { m_SelectedEntity = entity; }
 	void SetEditorCamera(Axel::OrbitalCamera& cam) { m_EditorCamera = &cam; }
 	Axel::EntityId GetSelectedEntity() const { return m_SelectedEntity; }
+	bool IsEntitySelected() const { return m_IsEntitySelected; }
 
 private:
 	void DrawEntity(Axel::EntityId entity);
