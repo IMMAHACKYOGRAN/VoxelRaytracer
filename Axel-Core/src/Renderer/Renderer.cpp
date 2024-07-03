@@ -9,10 +9,14 @@ namespace Axel
 {
 	struct RendererData
 	{
-		glm::vec2 ViewportSize;
+		glm::vec3 CameraPos;
 
-		std::shared_ptr<VertexArray> CubeVertexArray;
-		std::shared_ptr<Shader> VoxelShader;
+		PointLightComponent Light;
+		glm::vec3 LightPos;
+
+		std::shared_ptr<Shader> PBRShader;
+
+		std::shared_ptr<VertexArray> Mesh;
 
 		glm::mat4 View;
 		glm::mat4 Projection;
@@ -29,67 +33,31 @@ namespace Axel
 
 		glEnable(GL_DEPTH_TEST);
 		glEnable(GL_CULL_FACE);
-		glFrontFace(GL_CW);
 
-		s_Data.CubeVertexArray = VertexArray::Create();
-
-		float cubeVertices[24] = {
-			-0.5f, -0.5f,  0.5f, //   6---7
-			 0.5f, -0.5f,  0.5f, //  /|  /|
-			-0.5f,  0.5f,  0.5f, // 2---3 |
-			 0.5f,  0.5f,  0.5f, // | 4-|-5
-			-0.5f, -0.5f, -0.5f, // |/  |/
-			 0.5f, -0.5f, -0.5f, // 0---1
-			-0.5f,  0.5f, -0.5f,
-			 0.5f,  0.5f, -0.5f,
-		};
-
-		std::shared_ptr<VertexBuffer> cubeVertexBuffer = VertexBuffer::Create(cubeVertices, sizeof(cubeVertices));
-		cubeVertexBuffer->SetLayout({
-			{ ShaderDataType::Float3, "a_Position" },
-		});
-
-		s_Data.CubeVertexArray->AddVertexBuffer(cubeVertexBuffer);
-
-		uint32_t cubeIndecies[36] = {
-			0, 3, 2,
-			0, 1, 3,
-			1, 7, 3,
-			1, 5, 7,
-			5, 6, 7,
-			5, 4, 6,
-			4, 2, 6,
-			4, 0, 2,
-			4, 1, 0,
-			4, 5, 1,
-			2, 7, 6,
-			2, 3, 7,
-		};
-
-		std::shared_ptr<IndexBuffer> indexBuffer = IndexBuffer::Create(cubeIndecies, sizeof(cubeIndecies) / sizeof(uint32_t));
-		s_Data.CubeVertexArray->SetIndexBuffer(indexBuffer);
-
-		//s_Data.VoxelShader = Shader::Create("res/shaders/3D.glsl");
-		s_Data.VoxelShader = Shader::Create("res/shaders/VoxelVert.glsl", "res/shaders/VoxelFrag.glsl");
-		s_Data.VoxelShader->Bind();
+		s_Data.PBRShader = Shader::Create("res/shaders/PBR.vert", "res/shaders/PBR.frag");
+		s_Data.PBRShader->Bind();
 	}
 
 	void Renderer::Shutdown()
 	{
 	}
 
-	void Renderer::BeginScene(const OrbitalCamera& camera)
+	void Renderer::BeginScene(const OrbitalCamera& camera, const PointLightComponent& light, const TransformComponent& lighttransform)
 	{
 		s_Data.View = camera.GetViewMatrix();
 		s_Data.Projection = camera.GetProjectionMatrix();
+		s_Data.Light = light;
+		s_Data.LightPos = lighttransform.Translation;
 
 		s_Data.RenderStats.DrawCalls = 0;
 	}
 
-	void Renderer::BeginScene(const Camera& camera, const glm::mat4& transform)
+	void Renderer::BeginScene(const Camera& camera, const glm::mat4& cameratransform, const PointLightComponent& light, const TransformComponent& lighttransform)
 	{
-		s_Data.View = glm::inverse(transform);
+		s_Data.View = glm::inverse(cameratransform);
 		s_Data.Projection = camera.GetProjectionMatrix();
+		s_Data.Light = light;
+		s_Data.LightPos = lighttransform.Translation;
 
 		s_Data.RenderStats.DrawCalls = 0;
 	}
@@ -99,33 +67,41 @@ namespace Axel
 
 	}
 
-	void Renderer::DrawCube(const TransformComponent& transform)
+	void Renderer::DrawMesh(const MeshRendererComponent& mesh, const TransformComponent& transform)
 	{
-		s_Data.VoxelShader->Bind();
-		s_Data.VoxelShader->UploadUniformMat4("u_View", s_Data.View);
-		s_Data.VoxelShader->UploadUniformMat4("u_Projection", s_Data.Projection);
-		s_Data.VoxelShader->UploadUniformMat4("u_Model", transform.GetTransform());
+		s_Data.PBRShader->Bind();
+		s_Data.PBRShader->UploadUniformMat4("u_View", s_Data.View);
+		s_Data.PBRShader->UploadUniformMat4("u_Projection", s_Data.Projection);
+		s_Data.PBRShader->UploadUniformMat4("u_Model", transform.GetTransform());
+		s_Data.PBRShader->UploadUniformFloat3("u_CameraPos", s_Data.CameraPos);
 
-		s_Data.VoxelShader->UploadUniformFloat2("u_ViewportSize", s_Data.ViewportSize);
+		s_Data.PBRShader->UploadUniformFloat3("u_Albedo", mesh.Material.Albedo);
+		s_Data.PBRShader->UploadUniformFloat("u_Metallic", mesh.Material.Metalic);
+		s_Data.PBRShader->UploadUniformFloat("u_Roughness", mesh.Material.Roughness);
+
+		s_Data.PBRShader->UploadUniformFloat3("u_LightPosition", s_Data.LightPos);
+		s_Data.PBRShader->UploadUniformFloat3("u_LightColor", s_Data.Light.Colour);
+		s_Data.PBRShader->UploadUniformFloat("u_LightIntensity", s_Data.Light.Intensity);
+
+		s_Data.Mesh = mesh.Mesh.GetVertexArray();
 		
 		DrawIndexed();
 	}
 
 	void Renderer::DrawIndexed()
 	{
-		glDrawElements(GL_TRIANGLES, s_Data.CubeVertexArray->GetIndexBuffer()->GetCount(), GL_UNSIGNED_INT, nullptr);
+		glDrawElements(GL_TRIANGLES, s_Data.Mesh->GetIndexBuffer()->GetCount(), GL_UNSIGNED_INT, nullptr);
 		s_Data.RenderStats.DrawCalls++;
 	}
 
 	void Renderer::Clear(const glm::vec4& colour)
 	{
-		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 		glClearColor(colour.r, colour.g, colour.b, colour.a);
+		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	}
 
 	void Renderer::SetViewport(uint32_t x, uint32_t y, uint32_t width, uint32_t height)
 	{
-		s_Data.ViewportSize = { width, height };
 		glViewport(x, y, width, height);
 	}
 

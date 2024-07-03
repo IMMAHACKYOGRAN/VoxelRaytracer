@@ -53,10 +53,21 @@ namespace Axel
 
 	void Scene::OnEditorUpdate(float dt, const OrbitalCamera& camera)
 	{
-		Renderer::BeginScene(camera);
+		PointLightComponent light;
+		light.Intensity = 0.0f;
+		TransformComponent tc;
+		const auto lights = m_Registry.GetEntitiesWith<PointLightComponent>();
+		if (!lights.empty())
+		{
+			light = m_Registry.GetComponent<PointLightComponent>(lights.at(0));
+			tc = m_Registry.GetComponent<TransformComponent>(lights.at(0));
+		}
 
-		for (const auto entity : GetEntitiesWith<TransformComponent>())
-			Renderer::DrawCube(GetComponent<TransformComponent>(entity));
+		Renderer::BeginScene(camera, light, tc);
+
+		for (const auto entity : GetEntitiesWith<MeshRendererComponent>())
+			if (!GetComponent<MeshRendererComponent>(entity).FilePath.empty())
+				Renderer::DrawMesh(GetComponent<MeshRendererComponent>(entity), GetComponent<TransformComponent>(entity));
 
 		Renderer::EndScene();
 	}
@@ -80,15 +91,25 @@ namespace Axel
 				s->Update(dt);
 		}
 
+		PointLightComponent light;
+		light.Intensity = 0.0f;
+		TransformComponent tc;
+		const auto lights = m_Registry.GetEntitiesWith<PointLightComponent>();
+		if (!lights.empty())
+		{
+			light = m_Registry.GetComponent<PointLightComponent>(lights.at(0));
+			tc = m_Registry.GetComponent<TransformComponent>(lights.at(0));
+		}
+
 		if (m_MainCameraSet)
 		{
 			const auto& cam = m_Registry.GetComponent<CameraComponent>(m_MainCameraEntity).Cam;
 			const auto& transform = m_Registry.GetComponent<TransformComponent>(m_MainCameraEntity);
 
-			Renderer::BeginScene(cam, transform.GetTransform());
+			Renderer::BeginScene(cam, transform.GetTransform(), light, tc);
 
-			for (const auto entity : GetEntitiesWith<TransformComponent>())
-				Renderer::DrawCube(GetComponent<TransformComponent>(entity));
+			for (const auto entity : GetEntitiesWith<MeshRendererComponent>())
+				Renderer::DrawMesh(GetComponent<MeshRendererComponent>(entity), GetComponent<TransformComponent>(entity));
 
 			Renderer::EndScene();
 		}

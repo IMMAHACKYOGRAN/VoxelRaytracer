@@ -81,10 +81,6 @@ void EditorLayer::OnAttach()
     m_CurrentScene = std::shared_ptr<Axel::Scene>(new Axel::Scene);
     m_PropertiesScenePanel.SetScene(m_CurrentScene);
     m_PropertiesScenePanel.SetEditorCamera(m_EditorCamera);
-
-    Entity e = m_CurrentScene->CreateEntity();
-    e.AddComponent<CameraComponent>();
-    m_CurrentScene->SetMainCameraEntity((EntityId)e);
 }
 
 void EditorLayer::OnEvent(Axel::Event& e)

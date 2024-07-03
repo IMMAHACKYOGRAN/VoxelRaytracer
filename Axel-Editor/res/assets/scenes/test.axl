@@ -3,19 +3,35 @@ EditorCamera:
   VerticalFov: 30
   NearClip: 0.00999999978
   FarClip: 100
-  FocalPoint: [1.39999998, 0, 0]
+  FocalPoint: [0, 0, 0]
   Distance: 10
-  Pitch: 0.75
-  Yaw: -0.75
+  Pitch: 0.488405019
+  Yaw: -0.762004614
 Entities:
   - Entity: 0
     NameComponent:
       Name: Entity 0
     TransformComponent:
-      Translation: [1.39999998, 0, 0]
+      Translation: [0, 0, 0]
       Rotation: [0, 0, 0]
       Scale: [1, 1, 1]
     CameraComponent:
       VerticalFov: 45
       NearClip: 0.100000001
       FarClip: 100
+    MeshRendererComponent:
+      FilePath: C:\Dev\VoxelRaytracer\Axel-Editor\res\assets\ball.fbx
+      Material:
+        Albedo: [0.936708868, 0.52171123, 0.52171123]
+        Metalic: 0
+        Roughness: 1
+  - Entity: 1
+    NameComponent:
+      Name: Entity 1
+    TransformComponent:
+      Translation: [0, 0.872023225, 2.11188412]
+      Rotation: [0, 0, 0]
+      Scale: [1, 1, 1]
+    PointLightComponent:
+      Colour: [1, 1, 1]
+      Intensity: 10

@@ -91,6 +91,36 @@ namespace Axel
 			out << YAML::EndMap;
 		}
 
+		if (entity.HasComponent<MeshRendererComponent>())
+		{
+			out << YAML::Key << "MeshRendererComponent";
+			out << YAML::BeginMap;
+
+			auto& m = entity.GetComponent<MeshRendererComponent>();
+			out << YAML::Key << "FilePath" << YAML::Value << m.FilePath;
+
+			out << YAML::Value << "Material";
+			out << YAML::BeginMap;
+			out << YAML::Key << "Albedo" << YAML::Value << m.Material.Albedo;
+			out << YAML::Key << "Metalic" << YAML::Value << m.Material.Metalic;
+			out << YAML::Key << "Roughness" << YAML::Value << m.Material.Roughness;
+			out << YAML::EndMap;
+
+			out << YAML::EndMap;
+		}
+
+		if (entity.HasComponent<PointLightComponent>())
+		{
+			out << YAML::Key << "PointLightComponent";
+			out << YAML::BeginMap;
+
+			auto& p = entity.GetComponent<PointLightComponent>();
+			out << YAML::Key << "Colour" << YAML::Value << p.Colour;
+			out << YAML::Key << "Intensity" << YAML::Value << p.Intensity;
+
+			out << YAML::EndMap;
+		}
+
 		out << YAML::EndMap; // Entity
 	}
 
@@ -167,6 +197,23 @@ namespace Axel
 				cc.Cam.SetNearClip(cameraComponent["NearClip"].as<float>());
 				cc.Cam.SetFarClip(cameraComponent["FarClip"].as<float>());
 				m_Scene->SetMainCameraEntity((EntityId)newEntity);
+			}
+			auto meshComponent = entity["MeshRendererComponent"];
+			if (meshComponent)
+			{
+				auto& m = newEntity.AddComponent<MeshRendererComponent>();
+				m.FilePath = meshComponent["FilePath"].as<std::string>();
+				m.Material.Albedo = meshComponent["Material"]["Albedo"].as<glm::vec3>();
+				m.Material.Metalic = meshComponent["Material"]["Metalic"].as<float>();
+				m.Material.Roughness = meshComponent["Material"]["Roughness"].as<float>();
+				m.LoadMesh(m.FilePath);
+			}
+			auto pointLightComponent = entity["PointLightComponent"];
+			if (pointLightComponent)
+			{
+				auto& pl = newEntity.AddComponent<PointLightComponent>();
+				pl.Colour = pointLightComponent["Colour"].as<glm::vec3>();
+				pl.Intensity = pointLightComponent["Intensity"].as<float>();
 			}
 		}
 

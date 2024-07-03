@@ -22,6 +22,7 @@ project "Axel-Editor"
         "../Axel-Core/vendor/ImGuizmo",
         "../Axel-Core/vendor/glm",
         "../Axel-Core/vendor/yaml-cpp/include",
+        "../Axel-Core/vendor/assimp/include",
     }
 
     links

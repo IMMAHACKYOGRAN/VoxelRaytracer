@@ -37,6 +37,7 @@ project "Axel-Core"
         "vendor/imgui",
         "vendor/ImGuizmo",
         "vendor/yaml-cpp/include",
+        "vendor/assimp/include",
     }
 
     links
@@ -45,6 +46,7 @@ project "Axel-Core"
         "Glad",
         "imgui",
         "yaml-cpp",
+        "vendor/assimp/lib/assimp-vc143-mt.lib",
         "opengl32.lib",
     }
 

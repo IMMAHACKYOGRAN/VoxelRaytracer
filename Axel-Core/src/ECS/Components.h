@@ -3,6 +3,9 @@
 #include <gtc/matrix_transform.hpp>
 #include <gtx/quaternion.hpp>
 #include "Renderer/Camera.h"
+#include "Renderer/PBRMaterial.h"
+#include "Renderer/BasicMesh.h"
+#include "Renderer/VoxelModelLoader.h"
 
 namespace Axel
 {
@@ -21,7 +24,7 @@ namespace Axel
 		glm::vec3 Scale = glm::vec3(1.0f);
 
 		TransformComponent() = default;
-
+			
 		glm::mat4 GetTransform() const
 		{
 			return glm::translate(glm::mat4(1.0f), Translation)
@@ -48,8 +51,36 @@ namespace Axel
 		CameraComponent() = default;
 	};
 
+	struct MeshRendererComponent
+	{
+		std::string FilePath = std::string();
+
+		PBRMaterial Material;
+		BasicMesh Mesh;
+
+		MeshRendererComponent() = default;
+
+		void LoadMesh(const std::string& filePath)
+		{
+			if (Mesh.LoadMesh(filePath))
+				AX_INFO("Loaded: {0}", filePath);
+			FilePath = filePath;
+		}
+	};
+
+	struct PointLightComponent
+	{
+		glm::vec3 Colour = { 1.0f, 1.0f, 1.0f };
+		float Intensity = 10.0f;
+	};
+
 	struct VoxelRendererComponent
 	{
+		BasicVoxelData VoxelData;
 
+		void LoadVoxels(const std::string& path)
+		{
+			VoxelData = VoxelModelLoader::LoadModelFromFile(path);
+		}
 	};
 }

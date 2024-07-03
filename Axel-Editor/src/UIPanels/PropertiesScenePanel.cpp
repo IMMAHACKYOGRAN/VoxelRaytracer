@@ -3,6 +3,30 @@
 #include <gtc/type_ptr.hpp>
 #include <imgui_internal.h>
 
+// File dialogs
+#include <commdlg.h>
+#define GLFW_EXPOSE_NATIVE_WIN32
+#include <GLFW/glfw3native.h>
+
+static std::string OpenModelFile()
+{
+	OPENFILENAMEA ofn;
+	CHAR szFile[260] = { 0 };
+	ZeroMemory(&ofn, sizeof(OPENFILENAMEA));
+	ofn.lStructSize = sizeof(OPENFILENAMEA);
+	ofn.hwndOwner = glfwGetWin32Window(Axel::Application::Get().GetWindow().GetNativeWindow());
+	ofn.lpstrFile = szFile;
+	ofn.nMaxFile = sizeof(szFile);
+	ofn.lpstrFilter = "FBX (*.fbx)\0*.fbx\0";
+	ofn.nFilterIndex = 1;
+	ofn.Flags = OFN_PATHMUSTEXIST | OFN_FILEMUSTEXIST | OFN_NOCHANGEDIR;
+	if (GetOpenFileNameA(&ofn) == TRUE)
+	{
+		return ofn.lpstrFile;
+	}
+	return std::string();
+}
+
 PropertiesScenePanel::PropertiesScenePanel()
 {
 }
@@ -193,6 +217,27 @@ void PropertiesScenePanel::DrawAllComponents()
 		{
 			
 		});
+
+	DrawComponent<Axel::MeshRendererComponent>("Mesh", [](auto& comp)
+		{
+			ImGui::Text(comp.FilePath.c_str());
+			if (ImGui::Button("Load File..."))
+			{
+				comp.FilePath = OpenModelFile();
+				comp.LoadMesh(comp.FilePath);
+			}
+			ImGui::Text("Material");
+			ImGui::ColorEdit3("Albido", glm::value_ptr(comp.Material.Albedo));
+			ImGui::DragFloat("Metalic", &comp.Material.Metalic, 0.02f, 0.0f, 1.0f, "%.2f", ImGuiSliderFlags_AlwaysClamp);
+			ImGui::DragFloat("Roughness", &comp.Material.Roughness, 0.02f, 0.0f, 1.0f, "%.2f", ImGuiSliderFlags_AlwaysClamp);
+		});
+
+	DrawComponent<Axel::PointLightComponent>("Point Light", [](auto& comp)
+		{
+			ImGui::ColorEdit3("Colour", glm::value_ptr(comp.Colour));
+			ImGui::DragFloat("Intensity", &comp.Intensity, 1.0f, 0.0f, 10000.0f, "%.2f", ImGuiSliderFlags_AlwaysClamp);
+		});
+
 	ImGui::Separator();
 
 	ImGui::Dummy({0, 10});
@@ -221,6 +266,18 @@ void PropertiesScenePanel::DrawAllComponents()
 		{
 			if (!m_CurrentScene->HasComponent<Axel::ScriptComponent>(m_SelectedEntity))
 				m_CurrentScene->AddComponent<Axel::ScriptComponent>(m_SelectedEntity);
+		}
+
+		if (ImGui::Button("Mesh Renderer Component"))
+		{
+			if (!m_CurrentScene->HasComponent<Axel::MeshRendererComponent>(m_SelectedEntity))
+				m_CurrentScene->AddComponent<Axel::MeshRendererComponent>(m_SelectedEntity);
+		}
+
+		if (ImGui::Button("Point Light Component"))
+		{
+			if (!m_CurrentScene->HasComponent<Axel::PointLightComponent>(m_SelectedEntity))
+				m_CurrentScene->AddComponent<Axel::PointLightComponent>(m_SelectedEntity);
 		}
 
 		ImGui::EndPopup();
