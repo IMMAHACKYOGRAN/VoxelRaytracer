@@ -39,8 +39,6 @@ namespace Axel
 	{
 		ScriptableEntity* Script = nullptr;
 
-		void SetScript() {}
-
 		ScriptComponent() = default;
 	};
 	

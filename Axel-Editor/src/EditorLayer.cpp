@@ -62,11 +62,11 @@ EditorLayer::EditorLayer()
 
 void EditorLayer::OnAttach()
 {
-	Axel::FrameBufferSpecification fbSpec;
-	fbSpec.Attachments = { Axel::AttachmentFormat::RGBA, Axel::AttachmentFormat::RED_INTEGER, Axel::AttachmentFormat::DEPTH };
-	fbSpec.Width = 1280;
-	fbSpec.Height = 720;
-	m_FrameBuffer = Axel::FrameBuffer::Create(fbSpec);
+    Axel::FrameBufferSpecification fbSpec;
+    fbSpec.Attachments = { Axel::AttachmentFormat::RGBA, Axel::AttachmentFormat::RED_INTEGER, Axel::AttachmentFormat::DEPTH };
+    fbSpec.Width = 1280;
+    fbSpec.Height = 720;
+    m_FrameBuffer = Axel::FrameBuffer::Create(fbSpec);
 
     int w, h;
     uint8_t* pixels = Texture2D::LoadTexture("res/assets/imgs/Icon.png", &w, &h);
@@ -81,6 +81,21 @@ void EditorLayer::OnAttach()
     m_CurrentScene = std::shared_ptr<Axel::Scene>(new Axel::Scene);
     m_PropertiesScenePanel.SetScene(m_CurrentScene);
     m_PropertiesScenePanel.SetEditorCamera(m_EditorCamera);
+
+    Axel::Entity e1 = m_CurrentScene->CreateEntity("Ball");
+    auto& sc = e1.AddComponent<Axel::ScriptComponent>();
+    sc.Script = new test;
+    sc.Script->SetEntity(e1);
+    auto& mc = e1.AddComponent<Axel::MeshRendererComponent>();
+    mc.LoadMesh("res/assets/ball.fbx");
+
+    Axel::Entity e2 = m_CurrentScene->CreateEntity("Player");
+    e2.AddComponent<Axel::CameraComponent>();
+    m_CurrentScene->SetMainCameraEntity((EntityId)e2);
+
+    Axel::Entity e3 = m_CurrentScene->CreateEntity("Light");
+    e3.AddComponent<Axel::PointLightComponent>();
+    e3.GetComponent<Axel::TransformComponent>().Translation = { 1.5f, 1.5f, 1.5f };
 }
 
 void EditorLayer::OnEvent(Axel::Event& e)
@@ -168,16 +183,6 @@ void EditorLayer::OnImGuiRender()
                 }
             }
 
-            if (ImGui::MenuItem("New Scene")) 
-            {
-                m_WorkingDirectory = std::string();
-                std::shared_ptr<Axel::Scene> newscene = std::make_shared<Axel::Scene>();
-                m_CurrentScene = newscene;
-                m_PropertiesScenePanel.SetScene(m_CurrentScene);
-                m_EditorState = EditorState::Editing;
-                m_EditorCamera.ResizeViewport(m_ViewportSize.x, m_ViewportSize.y);
-            }
-
             if (ImGui::MenuItem("Save Scene")) 
             {
                 if (m_WorkingDirectory.empty())
@@ -209,6 +214,9 @@ void EditorLayer::OnImGuiRender()
             if (ImGui::MenuItem("Redo")) {}
             ImGui::EndMenu();
         }
+
+        if (ImGui::Button("Help"))
+            m_OpenHelp = true;
 
         ImGui::EndMenuBar();
     }
@@ -285,6 +293,29 @@ void EditorLayer::OnImGuiRender()
     if (ImGui::Button("Reset"))
         m_EditorCamera.SetFocalPoint({0.0f, 0.0f, 0.0f});
 	ImGui::End(); // Debug
+    
+    if (m_OpenHelp)
+    {
+        ImGui::Begin("Help", &m_OpenHelp);
+        ImGui::Text("Creating Entites");
+        ImGui::Separator();
+        ImGui::BulletText("To add an entity, navigate to the 'Scene' panel.");
+        ImGui::BulletText("Right click and select, 'Add Entity', this will create an empty entity.");
+        ImGui::BulletText("To give the entity a name, select the entity in the 'Scene' panel and navigate to the 'Properties' panel.");
+        ImGui::BulletText("The entitie's name will appear at the top of the panel. Click the text box to edit it.");
+        ImGui::Dummy({ 0, 4 });
+        ImGui::Text("Adding components");
+        ImGui::Separator();
+        ImGui::BulletText("To add a component to an entity, first select that entity in the 'Scene' panel.");
+        ImGui::BulletText("Navigate to the 'Properties' panel and press the 'Add Component' button. Select a component to add it.");
+        ImGui::BulletText("Note: All entites have a Transform by default");
+        ImGui::Dummy({0, 4});
+        ImGui::Text("Running the Game");
+        ImGui::Separator();
+        ImGui::BulletText("To run the game, navigate to the 'Viewport' panel and press the centeral button with the triangle icon.");
+        ImGui::BulletText("Note: At least one entity must have a Camera component for the viewport to display anything.");
+        ImGui::End();
+    }
 
     m_PropertiesScenePanel.Draw();
 

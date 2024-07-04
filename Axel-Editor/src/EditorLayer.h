@@ -49,6 +49,8 @@ private:
 	bool m_ViewportFocused = false;
 	bool m_ViewportHovered = false;
 
+	bool m_OpenHelp = true;
+
 	bool m_UpdateCam = true;
 
 	float m_Dt = 0; //TODO: remove

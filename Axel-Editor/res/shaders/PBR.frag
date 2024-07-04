@@ -76,7 +76,7 @@ vec3 CalculatePBR()
 
 	vec3 ambient = vec3(0.03) * u_Albedo;
 
-	vec3 outgoingLight = (kD * u_Albedo / PI + specular) * resultantLight * max(dot(Normal, Light), 0.0) + ambient;
+	vec3 outgoingLight = (kD * u_Albedo / PI + specular) * resultantLight * max(dot(Normal, Light), EPSILON) + ambient;
 	outgoingLight = outgoingLight / (outgoingLight + 1.0);
 	outgoingLight = pow(outgoingLight, vec3(1.0 / 2.2));
 
